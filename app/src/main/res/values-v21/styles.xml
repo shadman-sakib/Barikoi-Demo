@@ -4,5 +4,29 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowContentTransitions" >true</item>
+        <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@color/colortransparent</item>-->
+        <!--<item name="android:windowContentTransitions" >true</item>-->
+        <item name="android:textViewStyle">@style/OpenSansTextViewStyle</item>
+        <item name="editTextStyle">@style/OpenSansEditTextStyle</item>
+        <item name="buttonStyle">@style/OpenSansButtonStyle</item>
+
+<!--        <item name="buttonStyle">@style/RobotoButtonStyle</item>-->
+        <!--<item name="windowActionBarOverlay">true</item>
+        <item name="android:windowTranslucentStatus">true</item>-->
+    </style>
+
+    <style name="OpenSansButtonStyle" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">@font/opensansbold</item>
+    </style>
+
+
+    <style name="OpenSansTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/opensansfamily</item>
+    </style>
+    <style name="OpenSansEditTextStyle" parent="android:Widget.EditText">
+        <item name="android:fontFamily">@font/opensansfamily</item>
     </style>
 </resources>

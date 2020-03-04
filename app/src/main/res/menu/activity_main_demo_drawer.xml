@@ -6,19 +6,19 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_search"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/ic_menu_search"
             android:title="@string/search_autocomplete" />
         <item
             android:id="@+id/nav_reversegeo"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_menu_reverse_geo"
             android:title="@string/reverge_geo" />
         <item
             android:id="@+id/nav_rupantor"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@drawable/ic_menu_rupantor"
             android:title="@string/rupantor" />
         <item
             android:id="@+id/nav_nearby"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_menu_nearby"
             android:title="@string/Nearby" />
         <item
             android:id="@+id/nav_checkout"

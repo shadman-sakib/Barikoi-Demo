@@ -6,11 +6,26 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textViewStyle">@style/OpenSansTextViewStyle</item>
+        <item name="buttonStyle">@style/OpenSansButtonStyle</item>
+        <item name="editTextStyle">@style/OpenSansEditTextStyle</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:textViewStyle">@style/OpenSansTextViewStyle</item>
+        <item name="editTextStyle">@style/OpenSansEditTextStyle</item>
+        <item name="buttonStyle">@style/OpenSansButtonStyle</item>
+    </style>
+    <style name="OpenSansTextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/opensansfamily</item>
+    </style>
+    <style name="OpenSansButtonStyle" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">@font/opensansfamily</item>
+    </style>
+    <style name="OpenSansEditTextStyle" parent="android:Widget.EditText">
+        <item name="android:fontFamily">@font/opensansfamily</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

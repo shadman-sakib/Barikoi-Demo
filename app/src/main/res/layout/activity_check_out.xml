@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="?actionBarSize"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:weightSum="3"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="bottom"
+            android:layout_weight="2">
+
+            <EditText
+                android:id="@+id/input_address"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:hint="@string/InputAddress"
+                android:inputType="textMultiLine"
+                android:padding="8dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="50dp"
+            android:layout_height="match_parent"
+            android:padding="2dp"
+            android:contentDescription="app_logo"
+            android:layout_weight="1"
+            android:src="@drawable/ic_gps_indicator" />
+    </LinearLayout>
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_marginBottom="16dp"
+            android:background="#c0c0c0" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/editText_height"
+            android:gravity="bottom">
+
+            <EditText
+                android:id="@+id/input_Area"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:hint="@string/Area"
+                android:inputType="text"
+                android:padding="8dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_marginBottom="16dp"
+            android:background="#c0c0c0" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/editText_height"
+            android:gravity="bottom">
+
+            <EditText
+                android:id="@+id/input_City"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:hint="@string/City"
+                android:inputType="text"
+                android:padding="8dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_marginBottom="16dp"
+            android:background="#c0c0c0" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/editText_height"
+            android:gravity="bottom">
+
+            <EditText
+                android:id="@+id/input_ZipCode"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:hint="@string/ZipCode"
+                android:inputType="number|phone"
+                android:padding="8dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_marginBottom="16dp"
+            android:background="#c0c0c0" />
+
+<!--        <Spinner-->
+<!--            android:id="@+id/countryList"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="@dimen/editText_height"-->
+<!--            android:entries="@array/country_arrays"-->
+<!--            android:prompt="@string/country_prompt">-->
+<!--        </Spinner>-->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/editText_height"
+            android:gravity="bottom">
+
+            <EditText
+                android:id="@+id/input_countryList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@null"
+                android:hint="@string/Country"
+                android:text="Bangladesh"
+                android:textColor="@android:color/black"
+                android:inputType="text"
+                android:enabled="false"
+                android:padding="8dp" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_marginBottom="16dp"
+            android:background="#c0c0c0" />
+
+        <Button
+        android:id="@+id/btn_confirm"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/editText_height"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="16dp"
+        android:textAllCaps="true"
+        android:background="@drawable/button_shape"
+        android:padding="12dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textSize="17sp"
+        android:text="Confirm" />
+
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        />
+</FrameLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

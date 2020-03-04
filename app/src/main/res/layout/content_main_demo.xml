@@ -78,7 +78,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        app:srcCompat="@drawable/markerpointer" />
+        app:srcCompat="@drawable/ic_map_pin" />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:visibility="visible"
@@ -88,7 +88,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="100dp"
         android:layout_marginRight="16dp"
-        android:src="@drawable/gpsindicator1"
+        android:src="@drawable/ic_gps_indicator"
         app:backgroundTint="@color/white"
         android:elevation="2dp"
         app:borderWidth="0dp"

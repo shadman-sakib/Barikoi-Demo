@@ -1,7 +1,10 @@
 package com.barikoi.barikoidemo
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import androidx.drawerlayout.widget.DrawerLayout
@@ -18,6 +21,8 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import kotlinx.android.synthetic.main.bottomsheet_placeview.*
 import kotlinx.android.synthetic.main.content_main_demo.*
 import android.view.View.*
+import android.view.WindowManager
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
@@ -37,6 +42,7 @@ import com.mapbox.android.core.location.LocationEngineCallback
 import com.mapbox.android.core.location.LocationEngineResult
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
@@ -58,6 +64,9 @@ import java.util.HashMap
 class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener {
 
 
+    private var currentLat: Double? = null
+    private var currentLng: Double? = null
+    private var currentlocation: Location?=null
     private val placemarkermap: HashMap<String,Marker>?=HashMap()
     private var iconFactory: IconFactory?=null
     private var permissionsManager: PermissionsManager?=null
@@ -68,6 +77,10 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     var types= arrayOf("Bank","Education","Food","Fuel","Government","Healthcare","Hotel","Shop","Utility")
     private var nearbyadapter: PlaceListAdapter?=null
     //private lateinit var appBarConfiguration: AppBarConfiguration
+
+    private val requestCode = 555
+
+    private val TAG = "MainActivityDemo"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,7 +97,12 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 R.id.nav_reversegeo-> initReversegeo()
                 R.id.nav_rupantor -> initRupantor()
                 R.id.nav_nearby -> initNearby()
-                R.id.nav_checkout -> 
+                R.id.nav_checkout ->{val intent = Intent(this@MainDemoActivity, CheckOutActivity::class.java)
+                    Log.d(TAG, "Current Location: " + currentlocation)
+                    intent.putExtra("location",currentlocation.toString())
+                    intent.putExtra("lat",currentLat)
+                    intent.putExtra("lng",currentLng)
+                    startActivity(intent)}
             }
             drawerLayout.closeDrawer(GravityCompat.START)
             true
@@ -97,9 +115,11 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         mapView.getMapAsync(this)
         initViews()
         initSearchautocomplete()
+
+
     }
     override fun onMapReady(mapboxMap: MapboxMap) {
-        Log.d("mainactivitydemo","map ready")
+        Log.d(TAG,"map ready")
         map = mapboxMap
 
         mapboxMap.setStyle(Style.MAPBOX_STREETS) {
@@ -134,7 +154,21 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
             locationComponent?.renderMode = RenderMode.COMPASS
             locationComponent?.locationEngine?.getLastLocation(object : LocationEngineCallback<LocationEngineResult>{
                 override fun onSuccess(result: LocationEngineResult?) {
+
+                    currentlocation=result?.lastLocation
+
+                    currentLat = result?.lastLocation!!.latitude
+                    currentLng = result.lastLocation!!.longitude
                     map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(result?.lastLocation!!.latitude,result.lastLocation!!.longitude),17.0))
+
+                    Log.d(TAG,"Map: " +map.toString())
+
+                    val ss:String ?= intent.getStringExtra("key")
+
+                    if (ss.equals("fromCheckout")){
+                        //btn_send.visibility= VISIBLE
+                        initReversegeo()
+                    }
 
                 }
 
@@ -143,7 +177,6 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 }
 
             })
-            fab.visibility= VISIBLE
             fab.setOnClickListener {
                 locationComponent?.locationEngine?.getLastLocation(object : LocationEngineCallback<LocationEngineResult>{
                     override fun onSuccess(result: LocationEngineResult?) {
@@ -159,7 +192,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
             }
 
         } else {
-            Log.d("mainactivitydemo","location permission not granted")
+            Log.d(TAG,"location permission not granted")
             permissionsManager = PermissionsManager(this)
 
             permissionsManager?.requestLocationPermissions(this)
@@ -248,10 +281,12 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         clearmode()
         map_pointer.visibility= VISIBLE
         mBottomSheetBehaviorplaceview!!.state=BottomSheetBehavior.STATE_EXPANDED
+        Log.d(TAG,"Map 1: " +map.toString())
         map?.addOnCameraIdleListener (maprevgeolistener)
     }
     val maprevgeolistener= object: MapboxMap.OnCameraIdleListener {
         override fun onCameraIdle() {
+            Log.d(TAG, "onCameraIdle")
             progress.visibility= VISIBLE
             ReverseGeoAPI.builder(this@MainDemoActivity)
                 .setLatLng(map?.cameraPosition!!.target.latitude,map?.cameraPosition!!.target.longitude)
@@ -263,9 +298,18 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                     }
 
                     override fun reversedAddress(place: ReverseGeoPlace?) {
+                        Log.d(TAG, "reversedAddress")
                         progress.visibility=GONE
                         textview_address.text=place?.address
                         textview_area.text=place?.area
+//                        btn_send.setOnClickListener {
+//                            val intent = Intent(this@MainDemoActivity, CheckOutActivity::class.java)
+//                            intent.putExtra("address", place.toString())
+//                            setResult(RESULT_OK,intent)
+//                            startActivityForResult(intent, requestCode)
+//                            finish()
+//                        }
+
                     }
 
                 })
@@ -415,6 +459,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 plotmarker(place!!)
                 textview_address.text=place.address
                 textview_area.text=place.area
+                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
 
             }
             override fun onFailure(error: String) {
@@ -424,6 +469,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
 
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
