@@ -3,9 +3,10 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowContentTransitions" >true</item>
+        <item name="android:fitsSystemWindows">true</item>
         <!--<item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@color/colortransparent</item>-->
         <!--<item name="android:windowContentTransitions" >true</item>-->
@@ -29,4 +30,7 @@
     <style name="OpenSansEditTextStyle" parent="android:Widget.EditText">
         <item name="android:fontFamily">@font/opensansfamily</item>
     </style>
+
+
+
 </resources>

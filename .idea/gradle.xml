@@ -8,7 +8,7 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/Barikoi Demo" />
+            <option value="$PROJECT_DIR$/BarikoiDemo" />
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>

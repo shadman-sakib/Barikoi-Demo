@@ -17,7 +17,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".CheckOutActivity"
-            android:label="@string/title_activity_check_out">
+            android:label="@string/title_activity_check_out"
+            android:windowSoftInputMode="stateHidden">
 
         </activity>
         <activity

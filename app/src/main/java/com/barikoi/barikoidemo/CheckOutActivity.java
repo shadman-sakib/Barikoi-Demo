@@ -3,20 +3,29 @@ package com.barikoi.barikoidemo;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import barikoi.barikoilocation.PlaceModels.GeoCodePlace;
 import barikoi.barikoilocation.PlaceModels.ReverseGeoPlace;
@@ -27,7 +36,7 @@ import barikoi.barikoilocation.SearchAutoComplete.SearchAutocompleteFragment;
 
 public class CheckOutActivity extends AppCompatActivity {
 
-    EditText inputAddress, area, city, zipCode;
+    EditText etInputAddress, etArea, etCity, etZipCode;
     Spinner countryList;
     Button confirm;
     ImageView imageView;
@@ -35,26 +44,26 @@ public class CheckOutActivity extends AppCompatActivity {
     Double getLat, getLng;
     ReverseGeoAPIListener reverseGeoAPIListener;
     ProgressBar progressBar;
-    private static final int requestCode=555;
+    private static final int requestCode = 555;
     private static final String TAG = "Checkout";
 
     @Override
-    public boolean onSupportNavigateUp(){
+    public boolean onSupportNavigateUp() {
         finish();
         return true;
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_out);
 
-        inputAddress = findViewById(R.id.input_address);
-        area = findViewById(R.id.input_Area);
-        city = findViewById(R.id.input_City);
-        zipCode = findViewById(R.id.input_ZipCode);
+        etInputAddress = findViewById(R.id.input_address);
+        etArea = findViewById(R.id.input_Area);
+        etCity = findViewById(R.id.input_City);
+        etZipCode = findViewById(R.id.input_ZipCode);
         confirm = findViewById(R.id.btn_confirm);
-        imageView = findViewById(R.id.imageView);
         progressBar = findViewById(R.id.progress);
 
         //countryList = findViewById(R.id.countryList);
@@ -63,14 +72,53 @@ public class CheckOutActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-        inputAddress.setOnClickListener(new View.OnClickListener() {
+        etInputAddress.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
-            public void onClick(View v) {
-                //getAddress = null;
-                Intent intent=new Intent(CheckOutActivity.this, SearchAutoCompleteActivity.class);
-                startActivityForResult(intent,requestCode);
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    Intent intent = new Intent(CheckOutActivity.this, SearchAutoCompleteActivity.class);
+                    startActivityForResult(intent, requestCode);
 
+                }
+            }
+        });
+
+        etInputAddress.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    final int DRAWABLE_RIGHT = 2;
+                    if(event.getRawX() >= etInputAddress.getRight() - etInputAddress.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width()) {
+                        // your action for drawable click event
+
+                        progressBar.setVisibility(View.VISIBLE);
+                        getCurrentAddress = String.valueOf(getIntent().getSerializableExtra("location"));
+                        getLat = getIntent().getDoubleExtra("lat", 1);
+                        getLng = getIntent().getDoubleExtra("lng", 1);
+                        Log.d(TAG, "getLat: " + getLat + " getLng: " + getLng);
+                        ReverseGeoAPI.builder(CheckOutActivity.this)
+                                .setLatLng(getLat, getLng)
+                                .build()
+                                .getAddress(reverseGeoAPIListener = new ReverseGeoAPIListener() {
+                                    @Override
+                                    public void reversedAddress(ReverseGeoPlace place) {
+                                        progressBar.setVisibility(View.GONE);
+                                        etInputAddress.setText(place.toString());
+                                        etArea.setText(place.getArea());
+                                        etCity.setText(place.getCity());
+                                    }
+
+                                    @Override
+                                    public void onFailure(String message) {
+                                        Toast.makeText(CheckOutActivity.this, message, Toast.LENGTH_LONG).show();
+                                    }
+                                });
+
+
+                        return true;
+                    }
+                }
+                return false;
             }
         });
 
@@ -78,47 +126,15 @@ public class CheckOutActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Toast.makeText(CheckOutActivity.this, "Successfully Checkout", Toast.LENGTH_LONG).show();
+                Toast.makeText(CheckOutActivity.this, "Successfully Checkout", Toast.LENGTH_SHORT).show();
             }
         });
 
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-//                Intent intent = new Intent(CheckOutActivity.this, MainDemoActivity.class);
-//                intent.putExtra("key", "fromCheckout");
-//                startActivity(intent);
-
-                //getAddress = (Location) getIntent().getSerializableExtra("location");
-                progressBar.setVisibility(View.VISIBLE);
-                getCurrentAddress = String.valueOf(getIntent().getSerializableExtra("location"));
-                getLat = getIntent().getDoubleExtra("lat", 1);
-                getLng = getIntent().getDoubleExtra("lng", 1);
-                Log.d(TAG, "getLat: " +getLat+ " getLng: " +getLng);
-                ReverseGeoAPI.builder(CheckOutActivity.this)
-                        .setLatLng(getLat, getLng)
-                        .build()
-                        .getAddress(reverseGeoAPIListener = new ReverseGeoAPIListener() {
-                            @Override
-                            public void reversedAddress(ReverseGeoPlace place) {
-                                progressBar.setVisibility(View.GONE);
-                                inputAddress.setText(place.toString());
-                                area.setText(place.getArea());
-                                city.setText(place.getCity());
-                            }
-
-                            @Override
-                            public void onFailure(String message) {
-                                Toast.makeText(CheckOutActivity.this,message,Toast.LENGTH_LONG).show();
-                            }
-                        });
-            }
-        });
 
 
 
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -129,10 +145,17 @@ public class CheckOutActivity extends AppCompatActivity {
 
                 GeoCodePlace place = (GeoCodePlace) data.getSerializableExtra("place_selected");
                 Log.d(TAG, "selected place: " +place.toString());
-                inputAddress.setText(place.toString());
-                area.setText(place.getArea());
-                city.setText(place.getCity());
-                zipCode.setText(place.getPostalcode());
+                etInputAddress.setText(place.toString());
+                etArea.setText(place.getArea());
+                etCity.setText(place.getCity());
+                Log.d(TAG, "Zip Code: " +place.getPostalcode());
+                if(!place.getPostalcode().equals("null")){
+                    etZipCode.setText(place.getPostalcode());
+                }else {
+                    etZipCode.setText(" ");
+                }
+
+                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
             }
             if (resultCode == Activity.RESULT_CANCELED) {

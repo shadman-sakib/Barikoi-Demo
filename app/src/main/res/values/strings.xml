@@ -22,6 +22,8 @@
     <string name="rupantor">Rupantor</string>
     <string name="Nearby">Nearby</string>
     <string name="CheckOut">Checkout Demo</string>
+    <string name="Name">Name</string>
+    <string name="Phone">Contact number</string>
     <string name="InputAddress">Enter address</string>
     <string name="Area">Area</string>
     <string name="City">City</string>

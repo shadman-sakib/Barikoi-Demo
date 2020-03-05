@@ -4,9 +4,14 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
+import android.view.Gravity
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -26,6 +31,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
+import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import barikoi.barikoilocation.BarikoiAPI
 import barikoi.barikoilocation.JsonUtils
@@ -38,6 +44,7 @@ import barikoi.barikoilocation.ReverseGeo.ReverseGeoAPIListener
 import com.android.volley.Request
 import com.android.volley.toolbox.StringRequest
 import com.barikoi.barikoi.Models.RequestQueueSingleton
+import com.infideap.drawerbehavior.AdvanceDrawerLayout
 import com.mapbox.android.core.location.LocationEngineCallback
 import com.mapbox.android.core.location.LocationEngineResult
 import com.mapbox.android.core.permissions.PermissionsListener
@@ -53,6 +60,7 @@ import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.Style
+import com.shreyaspatil.material.navigationview.MaterialNavigationView
 import kotlinx.android.synthetic.main.bottomsheet_nearbylist.*
 import kotlinx.android.synthetic.main.bottomsheet_rupantor.*
 import org.json.JSONException
@@ -89,8 +97,19 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         setSupportActionBar(toolbar)
 
 
-        val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
-        val navView: NavigationView = findViewById(R.id.nav_view)
+        val drawerLayout: AdvanceDrawerLayout = findViewById(R.id.drawer_layout)
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
+
+        drawerLayout.useCustomBehavior(Gravity.START)
+        drawerLayout.setViewScale(Gravity.START, 0.9f)
+        drawerLayout.setViewElevation(Gravity.START, 20f)
+        drawerLayout.setRadius(Gravity.START, 25F)
+
+        val navView: MaterialNavigationView = findViewById(R.id.nav_view)
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId){
                 R.id.nav_search-> initSearchautocomplete()
@@ -105,12 +124,11 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                     startActivity(intent)}
             }
             drawerLayout.closeDrawer(GravityCompat.START)
+
             true
         }
-        val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
-        drawerLayout.addDrawerListener(toggle)
-        toggle.syncState()
+
+
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
         initViews()
@@ -118,6 +136,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
 
     }
+
     override fun onMapReady(mapboxMap: MapboxMap) {
         Log.d(TAG,"map ready")
         map = mapboxMap
