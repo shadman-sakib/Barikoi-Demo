@@ -1,4 +1,4 @@
-package com.barikoi.barikoidemo
+package com.barikoi.barikoidemo.Activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -17,6 +17,7 @@ import barikoi.barikoilocation.PlaceModels.ReverseGeoPlace
 import barikoi.barikoilocation.ReverseGeo.ReverseGeoAPI
 import barikoi.barikoilocation.ReverseGeo.ReverseGeoAPIListener
 import barikoi.barikoilocation.SearchAutoComplete.SearchAutocompleteFragment
+import com.barikoi.barikoidemo.R
 
 
 class MainActivity : AppCompatActivity() {

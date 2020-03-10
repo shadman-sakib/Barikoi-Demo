@@ -20,23 +20,41 @@
             app:popupTheme="@style/AppTheme.PopupOverlay"/>
 
     </com.google.android.material.appbar.AppBarLayout>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-        >
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:visibility="visible"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|right"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="4dp"
+            android:src="@drawable/ic_gps_indicator"
+            app:backgroundTint="@color/white"
+            android:elevation="2dp"
+            app:borderWidth="0dp"
+            app:fabSize="normal"
+            app:layout_anchorGravity="top|end"
+            app:layout_dodgeInsetEdges="bottom"
+            app:pressedTranslationZ="12dp" />
+
 <RelativeLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior=".CustomMapBehaviour"
-    >
+    app:layout_behavior=".CustomMapBehaviour">
 
         <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
-
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+        android:layout_height="match_parent">
+
+        </com.mapbox.mapboxsdk.maps.MapView>
+
 
 
     <LinearLayout
@@ -53,10 +71,13 @@
         android:id="@+id/barikoiSearchAutocompleteFragment"
         android:name="barikoi.barikoilocation.SearchAutoComplete.SearchAutocompleteFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="wrap_content">
 
-        />
+    </fragment>
+
     </LinearLayout>
+
+
     <!--<fragment
         android:id="@+id/nav_host_fragment"
         android:name="androidx.navigation.fragment.NavHostFragment"
@@ -81,27 +102,51 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:src="@drawable/ic_map_pin" />
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:visibility="visible"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="100dp"
-        android:layout_marginRight="16dp"
-        android:src="@drawable/ic_gps_indicator"
-        app:backgroundTint="@color/white"
-        android:elevation="2dp"
-        app:borderWidth="0dp"
-        app:fabSize="normal"
-        app:layout_anchorGravity="top|end"
-        app:layout_dodgeInsetEdges="bottom"
-        app:pressedTranslationZ="12dp" />
+
+
+
+
+
 </RelativeLayout>
+
+<!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--            android:id="@+id/fab"-->
+<!--            android:visibility="visible"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_alignParentRight="true"-->
+<!--            android:layout_alignParentBottom="true"-->
+<!--            android:layout_marginRight="16dp"-->
+<!--            android:src="@drawable/ic_gps_indicator"-->
+<!--            app:backgroundTint="@color/white"-->
+<!--            android:elevation="2dp"-->
+<!--            app:borderWidth="0dp"-->
+<!--            app:fabSize="normal"-->
+<!--            app:layout_anchor="@+id/bottomsheet_placeview"-->
+<!--            app:layout_anchorGravity="top|end"-->
+<!--            app:layout_dodgeInsetEdges="bottom"-->
+<!--            app:pressedTranslationZ="12dp" />-->
+
         <include layout="@layout/bottomsheet_placeview"/>
         <include layout="@layout/bottomsheet_nearbylist"/>
         <include layout="@layout/bottomsheet_rupantor"/>
+        <include layout="@layout/bottomsheet_addresslist"/>
+
+        <Button
+            android:id="@+id/btn_addressList"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/editText_height"
+            android:padding="12dp"
+            android:background="@drawable/button_shape"
+            android:text="Show List"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:layout_gravity="bottom"
+            app:layout_insetEdge="bottom"
+            android:textStyle="bold">
+
+        </Button>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

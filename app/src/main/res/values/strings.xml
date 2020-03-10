@@ -20,7 +20,8 @@
     <string name="search_autocomplete">Search Autocomplete</string>
     <string name="reverge_geo">Reverse Geo</string>
     <string name="rupantor">Rupantor</string>
-    <string name="Nearby">Nearby</string>
+    <string name="Nearby_Place">Nearby Places</string>
+    <string name="Nearby_Address">Nearby Addresses</string>
     <string name="CheckOut">Checkout Demo</string>
     <string name="Name">Name</string>
     <string name="Phone">Contact number</string>
@@ -29,6 +30,10 @@
     <string name="City">City</string>
     <string name="ZipCode">Zip Code</string>
     <string name="Country">Country</string>
+
+    <string name="couldnot_connect">Could not connect</string>
+    <string name="prob_change_server">Problem or change in server, please wait and try again</string>
+    <string name="unknown_error">Unknown Error Occured</string>
 
 
     <string name="country_prompt">Choose a country</string>
@@ -43,4 +48,30 @@
         <item>New Zealand</item>
         <item>India</item>
     </string-array>
+
+
+    //Nearby Places
+    <string name="food">Food</string>
+    <string name="religious">Religious</string>
+    <string name="attractions">Attractions</string>
+    <string name="more">More</string>
+    <string name="currentAddress">Current Address</string>
+
+    <string name="name_of_the_place">Name of the place/business/house</string>
+
+    //Activity More Place
+    <string name="hospital">Hospital</string>
+    <string name="bank">Bank</string>
+    <string name="education">Education</string>
+    <string name="policestation">Police Station</string>
+    <string name="hotel">Hotel</string>
+    <string name="toilet">Toilet</string>
+    <string name="fuel">Fuel</string>
+    <string name="bkash">BKash</string>
+    <string name="ucash">UCash</string>
+    <string name="surecash">SureCash</string>
+    <string name="parking">Parking</string>
+    <string name="generalStore">General Store</string>
+    <string name="market">Market</string>
+    <string name="pharmacy">Pharmacy</string>
 </resources>

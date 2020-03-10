@@ -4,7 +4,7 @@
     <corners
         android:radius="5dp" />
     <solid
-        android:color="@color/colorTransparentPrimary">
+        android:color="@color/colorTransparentAsh">
 
     </solid>
 

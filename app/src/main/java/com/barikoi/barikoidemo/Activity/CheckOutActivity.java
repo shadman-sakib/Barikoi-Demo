@@ -1,16 +1,11 @@
-package com.barikoi.barikoidemo;
+package com.barikoi.barikoidemo.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,21 +13,18 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.android.material.textfield.TextInputLayout;
+import com.barikoi.barikoidemo.R;
 
 import barikoi.barikoilocation.PlaceModels.GeoCodePlace;
 import barikoi.barikoilocation.PlaceModels.ReverseGeoPlace;
 import barikoi.barikoilocation.ReverseGeo.ReverseGeoAPI;
 import barikoi.barikoilocation.ReverseGeo.ReverseGeoAPIListener;
 import barikoi.barikoilocation.SearchAutoComplete.SearchAutoCompleteActivity;
-import barikoi.barikoilocation.SearchAutoComplete.SearchAutocompleteFragment;
 
 public class CheckOutActivity extends AppCompatActivity {
 

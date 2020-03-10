@@ -1,23 +1,16 @@
-package com.barikoi.barikoidemo
+package com.barikoi.barikoidemo.Activity
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.Configuration
-import android.content.res.Resources
 import android.location.Location
-import android.os.Build
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.util.Log
-import android.view.Gravity
-import androidx.drawerlayout.widget.DrawerLayout
-import com.google.android.material.navigation.NavigationView
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import android.view.Menu
-import android.view.View
 import barikoi.barikoilocation.PlaceModels.GeoCodePlace
 import barikoi.barikoilocation.SearchAutoComplete.SearchAutocompleteFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -26,13 +19,15 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import kotlinx.android.synthetic.main.bottomsheet_placeview.*
 import kotlinx.android.synthetic.main.content_main_demo.*
 import android.view.View.*
-import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import androidx.annotation.NonNull
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
-import androidx.core.view.ViewCompat
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import barikoi.barikoilocation.BarikoiAPI
 import barikoi.barikoilocation.JsonUtils
 import barikoi.barikoilocation.NearbyPlace.NearbyPlaceAPI
@@ -41,15 +36,27 @@ import barikoi.barikoilocation.PlaceModels.NearbyPlace
 import barikoi.barikoilocation.PlaceModels.ReverseGeoPlace
 import barikoi.barikoilocation.ReverseGeo.ReverseGeoAPI
 import barikoi.barikoilocation.ReverseGeo.ReverseGeoAPIListener
+import com.android.volley.AuthFailureError
 import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.barikoi.barikoi.Models.RequestQueueSingleton
+import com.barikoi.barikoidemo.Adapter.PlaceAddressAdapter
+import com.barikoi.barikoidemo.Adapter.TypeListAdapter
+import com.barikoi.barikoidemo.Fragment.MorePlaceTypeFragment
+import com.barikoi.barikoidemo.Model.Api
+import com.barikoi.barikoidemo.Model.Place
+import com.barikoi.barikoidemo.Model.Type
+import com.barikoi.barikoidemo.Task.JsonUtilsTask
+import com.barikoi.barikoidemo.PlaceListAdapter
+import com.barikoi.barikoidemo.R
 import com.infideap.drawerbehavior.AdvanceDrawerLayout
 import com.mapbox.android.core.location.LocationEngineCallback
 import com.mapbox.android.core.location.LocationEngineResult
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
-import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
@@ -61,8 +68,12 @@ import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.Style
 import com.shreyaspatil.material.navigationview.MaterialNavigationView
+import kotlinx.android.synthetic.main.bottomsheet_addresslist.*
 import kotlinx.android.synthetic.main.bottomsheet_nearbylist.*
+import kotlinx.android.synthetic.main.bottomsheet_placeview.textview_address
+import kotlinx.android.synthetic.main.bottomsheet_placeview.textview_area
 import kotlinx.android.synthetic.main.bottomsheet_rupantor.*
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 import java.lang.Exception
@@ -82,11 +93,21 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     private var mBottomSheetBehaviorplaceview: BottomSheetBehavior<View>?=null
     private var mBottomSheetBehaviorRupantor: BottomSheetBehavior<LinearLayout>?=null
     private var mBottomSheetBehaviorNearby: BottomSheetBehavior<LinearLayout>?=null
+    private var mBottomSheetBehaviorAddress: BottomSheetBehavior<View>?=null
     var types= arrayOf("Bank","Education","Food","Fuel","Government","Healthcare","Hotel","Shop","Utility")
     private var nearbyadapter: PlaceListAdapter?=null
     //private lateinit var appBarConfiguration: AppBarConfiguration
 
     private val requestCode = 555
+    val GHURBOKOI = 23
+    var gridLayoutManager: GridLayoutManager ?=null
+    var typeadapter: TypeListAdapter ?= null
+    private var nearbySerchType: NearbySerchType?= null
+    private var latitude = 0.0
+    private var longitude = 0.0
+
+    private val token = ""
+
 
     private val TAG = "MainActivityDemo"
 
@@ -99,7 +120,10 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
         val drawerLayout: AdvanceDrawerLayout = findViewById(R.id.drawer_layout)
         val toggle = ActionBarDrawerToggle(
-            this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+            this, drawerLayout, toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
@@ -112,10 +136,11 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         val navView: MaterialNavigationView = findViewById(R.id.nav_view)
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId){
-                R.id.nav_search-> initSearchautocomplete()
-                R.id.nav_reversegeo-> initReversegeo()
+                R.id.nav_search -> initSearchautocomplete()
+                R.id.nav_reversegeo -> initReversegeo()
                 R.id.nav_rupantor -> initRupantor()
                 R.id.nav_nearby -> initNearby()
+                R.id.nav_addresses -> initAddress()
                 R.id.nav_checkout ->{val intent = Intent(this@MainDemoActivity, CheckOutActivity::class.java)
                     Log.d(TAG, "Current Location: " + currentlocation)
                     intent.putExtra("location",currentlocation.toString())
@@ -129,6 +154,14 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         }
 
 
+        /*resourse name checking by id
+//        val id = 2131361916
+//        val name = getResources().getResourceEntryName(id)
+//
+//        Log.d(TAG, "Res Name: " +name)
+
+        */
+
         mapView.onCreate(savedInstanceState)
         mapView.getMapAsync(this)
         initViews()
@@ -136,6 +169,41 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
 
     }
+
+//    @SuppressLint("MissingPermission")
+//    override fun NearbySearchType(t: Type, lat: Double, lon: Double) {
+//        try {
+//            val prev = supportFragmentManager.findFragmentByTag(MorePlaceTypeFragment.TAG)
+//            if (prev != null) {
+//                val df = prev as DialogFragment?
+//                df!!.dismiss()
+//            }
+//
+//            BottomSheetDown()
+//            ClearMap()
+//            val searchNearbyFragment = SearchNearbyFragment()
+//            val bundle = Bundle()
+//            bundle.putSerializable("Type", t)
+//            if (originLocation == null && locationEngine!!.lastLocation != null) {
+//
+//                originLocation = locationEngine!!.lastLocation
+//                bundle.putDouble("latitude", originLocation!!.latitude)
+//                bundle.putDouble("longitude", originLocation!!.longitude)
+//            } else if (originLocation != null) {
+//                bundle.putDouble("latitude", originLocation!!.latitude)
+//                bundle.putDouble("longitude", originLocation!!.longitude)
+//            } else
+//                return
+//
+//            searchNearbyFragment.arguments = bundle
+//            loadFragment(searchNearbyFragment, "SearchNearby")
+//            BottomSheetBehavior(R.id.bottom_sheet_place_search_nearby)
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//
+//    }
+
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         Log.d(TAG,"map ready")
@@ -224,50 +292,236 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
     private fun initViews(){
         mBottomSheetBehaviorplaceview = BottomSheetBehavior.from(bottomsheet_placeview)
+        mBottomSheetBehaviorAddress = BottomSheetBehavior.from(bottomsheet_addresslist)
         mBottomSheetBehaviorNearby = BottomSheetBehavior.from(bottomsheet_nearby)
         mBottomSheetBehaviorRupantor = BottomSheetBehavior.from(bottomsheet_rupantor)
-        mBottomSheetBehaviorNearby?.peekHeight=500
+        mBottomSheetBehaviorNearby?.peekHeight=600
         mBottomSheetBehaviorRupantor?.peekHeight=200
-        nearbyadapter=PlaceListAdapter(ArrayList<NearbyPlace>(), object : PlaceListAdapter.OnPlaceItemSelectListener{
-            override fun onPlaceItemSelected(mItem: NearbyPlace?, position: Int) {
-                placemarkermap?.get(mItem!!.code)?.showInfoWindow(map!!,mapView)
-            }
-        })
+        mBottomSheetBehaviorplaceview?.peekHeight = 200
+        mBottomSheetBehaviorAddress?.peekHeight = 200
+
+//        search_rupantor.setOnEditorActionListener { _, actionId, _ ->
+//            if (actionId == EditorInfo.IME_ACTION_DONE) {
+//                rupantor(searchtext = search_rupantor.text.toString())
+//            }
+//            true
+//        }
+
+
+        nearbyadapter= PlaceListAdapter(
+            ArrayList<NearbyPlace>(),
+            object : PlaceListAdapter.OnPlaceItemSelectListener {
+                override fun onPlaceItemSelected(mItem: NearbyPlace?, position: Int) {
+                    placemarkermap?.get(mItem!!.code)?.showInfoWindow(map!!, mapView)
+                }
+            })
         nearbylistview.layoutManager=LinearLayoutManager(this)
         nearbylistview.adapter=nearbyadapter
 
-        rupantor_button.setOnClickListener { v ->
-            val searchtext= rupantor_searchtext.text
-            rupantor(searchtext.toString())
-        }
+        val DRAWABLE_RIGHT = 2
+        search_rupantor.setOnTouchListener(object : View.OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                when (event?.action) {
+                    MotionEvent.ACTION_UP ->
+                        if(event.getRawX() >= search_rupantor.getRight() - search_rupantor.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width()) {
+                            rupantor(searchtext = search_rupantor.text.toString())
+                        }
+
+                }
+
+                return v?.onTouchEvent(event) ?: true
+            }
+        })
+
+//        rupantor_button.setOnClickListener { v ->
+//            val searchtext= rupantor_searchtext.text
+//            rupantor(searchtext.toString())
+//        }
+
         iconFactory = IconFactory.getInstance(this@MainDemoActivity)
         clearmode()
         loadnearbytypes()
 
     }
+
+    fun hideKeyboard(mActivity : Activity) {
+
+
+        val view = mActivity.currentFocus
+        if (view != null) {
+            val imm = mActivity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+            imm!!.hideSoftInputFromWindow(view!!.getWindowToken(), 0)
+        }
+    }
+
+    private fun initAddress(){
+
+        clearmode()
+        map_pointer.visibility= VISIBLE
+        btn_addressList.visibility= VISIBLE
+        map?.addOnCameraIdleListener (maprevgeolistener2)
+
+        btn_addressList.setOnClickListener { v ->
+            mBottomSheetBehaviorAddress!!.state =
+                BottomSheetBehavior.STATE_EXPANDED
+
+            initsuggestionList(
+                map?.cameraPosition!!.target.latitude,
+                map?.cameraPosition!!.target.longitude
+            )
+            //nearbyAddressview.visibility = VISIBLE
+
+        }
+
+        layoutHeader.setOnClickListener { v ->
+            mBottomSheetBehaviorAddress!!.state =
+                BottomSheetBehavior.STATE_HIDDEN
+        }
+
+    }
+    val maprevgeolistener2= object: MapboxMap.OnCameraIdleListener {
+        override fun onCameraIdle() {
+            Log.d(TAG, "onCameraIdle")
+            progress.visibility= VISIBLE
+            ReverseGeoAPI.builder(this@MainDemoActivity)
+                .setLatLng(map?.cameraPosition!!.target.latitude,map?.cameraPosition!!.target.longitude)
+                .build()
+                .getAddress(object: ReverseGeoAPIListener {
+                    override fun onFailure(message: String?) {
+                        progress.visibility=GONE
+                        Toast.makeText(this@MainDemoActivity,message,Toast.LENGTH_LONG).show()
+                    }
+
+                    override fun reversedAddress(place: ReverseGeoPlace?) {
+                        Log.d(TAG, "reversedAddress")
+                        progress.visibility=GONE
+//                        tv_address.text=place?.address
+//                        tv_area.text=place?.area
+
+                        //nearbyAddressview.visibility = GONE
+
+
+
+                    }
+
+                })
+        }
+
+
+    }
+
     private fun initNearby() {
         clearmode()
+
+        val typeS = java.util.ArrayList<Type>()
+        typeS.add(Type("Food", "", getString(R.string.food),
+            R.drawable.food
+        ))
+        typeS.add(Type("Religious Place", "", getString(R.string.religious),
+            R.drawable.religion
+        ))
+
+        //typeS.add(Type("More", "", getString(R.string.more), R.drawable.more))
+        typeS.add(Type("", "Hospital", getString(R.string.hospital),
+            R.drawable.hospital
+        ))
+        typeS.add(Type("", "Pharmacy", getString(R.string.pharmacy),
+            R.drawable.pharmacy
+        ))
+        typeS.add(Type("Bank", "", getString(R.string.bank),
+            R.drawable.bank
+        ))
+        typeS.add(Type("Education", "", getString(R.string.education),
+            R.drawable.education
+        ))
+        typeS.add(Type("", "Police Station", getString(R.string.policestation),
+            R.drawable.policestation
+        ))
+        typeS.add(Type("Hotel", "", getString(R.string.hotel),
+            R.drawable.hotel
+        ))
+        typeS.add(Type("Public Toilet", "", getString(R.string.toilet),
+            R.drawable.toilet
+        ))
+        typeS.add(Type("fuel", "", getString(R.string.fuel),
+            R.drawable.gas
+        ))
+        typeS.add(Type("", "BKash", getString(R.string.bkash),
+            R.drawable.bkash
+        ))
+        typeS.add(Type("", "UCash", getString(R.string.ucash),
+            R.drawable.ucash2
+        ))
+        typeS.add(Type("", "SureCash", getString(R.string.surecash),
+            R.drawable.surecash
+        ))
+        typeS.add(Type("", "Parking", getString(R.string.parking),
+            R.drawable.parking
+        ))
+        typeS.add(Type("", "General Store", getString(R.string.generalStore),
+            R.drawable.commercial
+        ))
+        typeS.add(Type("", "Market", getString(R.string.market),
+            R.drawable.commercial
+        ))
+        typeS.add(Type("Attractions", "", getString(R.string.attractions),
+            R.drawable.landmark
+        ))
+
+//        layoutHeaderNearby.setOnClickListener { v ->
+//            mBottomSheetBehaviorNearby!!.state =
+//                BottomSheetBehavior.STATE_HIDDEN
+//        }
+
+
+        val typeadapter = TypeListAdapter(typeS,
+            R.layout.type_list_item_nearby_places,
+            object : TypeListAdapter.OnTypeItemSelectListener {
+                override fun onTypeSelected(t: Type) {
+                    Log.d(TAG, "TypeS List: ")
+                    if (t.name.equals("Attractions")) {
+                        val intent = Intent(applicationContext, GhurboKoiActivity::class.java)
+                            startActivityForResult(intent, GHURBOKOI)
+                    } else if (t.name.equals("More")) {
+                        /*Intent intent=new Intent(getContext(),MorePlaceTypeActivity.class);
+                    startActivity(intent);*/
+                        MoreTypeView(true)
+                    } else {
+
+                        nearbySerchType?.NearbySearchType(t, latitude, longitude)
+                        getnearby(t.name)
+                    }
+                }
+            })
+        val linearLayoutManager = LinearLayoutManager(applicationContext)
+        linearLayoutManager.orientation = LinearLayoutManager.HORIZONTAL
+        typeList.layoutManager = linearLayoutManager
+        typeList.adapter = typeadapter
+
+
         mBottomSheetBehaviorNearby!!.state=BottomSheetBehavior.STATE_COLLAPSED
         mBottomSheetBehaviorNearby!!.isHideable=false
-        getnearby(nearbytypespineer.selectedItem.toString())
+        //getnearby(nearbytypespineer.selectedItem.toString())
 
-        nearbytypespineer.setOnItemSelectedListener(object: AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-
-            override fun onItemSelected(parent: AdapterView<*>,
-                                        view: View, position: Int, id: Long){
-                getnearby(types[position])
-            }
-        })
+//        nearbytypespineer.setOnItemSelectedListener(object: AdapterView.OnItemSelectedListener {
+//            override fun onNothingSelected(parent: AdapterView<*>?) {
+//                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+//            }
+//
+//            override fun onItemSelected(parent: AdapterView<*>,
+//                                        view: View, position: Int, id: Long){
+//                getnearby(types[position])
+//            }
+//        })
     }
     private fun getnearby(type : String){
+        nearbylistview.visibility = VISIBLE
+
         map?.locationComponent!!.locationEngine?.getLastLocation(object :LocationEngineCallback<LocationEngineResult>{
             override fun onSuccess(result: LocationEngineResult?) {
                 NearbyPlaceAPI.builder(this@MainDemoActivity)
                     .setDistance(2.0)
-                    .setLimit(10)
+                    .setLimit(5)
                     .setType(type)
                     .setLatLng(result?.lastLocation!!.latitude,result.lastLocation!!.longitude)
                     .build()
@@ -281,6 +535,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                         }
 
                     })
+                mBottomSheetBehaviorNearby!!.state=BottomSheetBehavior.STATE_COLLAPSED
+                //mBottomSheetBehaviorNearby!!.isHideable=false
             }
 
             override fun onFailure(exception: Exception) {
@@ -300,8 +556,30 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         clearmode()
         map_pointer.visibility= VISIBLE
         mBottomSheetBehaviorplaceview!!.state=BottomSheetBehavior.STATE_EXPANDED
+        mBottomSheetBehaviorplaceview!!.isHideable = false
         Log.d(TAG,"Map 1: " +map.toString())
         map?.addOnCameraIdleListener (maprevgeolistener)
+
+        val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                // Do something for new state
+
+                // this part hides the button immediately and waits bottom sheet
+                // to collapse to show
+                if (BottomSheetBehavior.STATE_DRAGGING == newState) {
+                    fab.animate().scaleX(0f).scaleY(0f).setDuration(300).start()
+                } else if (BottomSheetBehavior.STATE_COLLAPSED == newState) {
+                    fab.animate().scaleX(1f).scaleY(1f).setDuration(300).start()
+                }
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                // Do something for slide offset
+
+            }
+        }
+        //mBottomSheetBehaviorplaceview!!.setBottomSheetCallback(bottomSheetCallback)
     }
     val maprevgeolistener= object: MapboxMap.OnCameraIdleListener {
         override fun onCameraIdle() {
@@ -334,6 +612,93 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 })
         }
     }
+
+    private fun initsuggestionList(lat: Double, lon: Double) {
+
+
+//        mBottomSheetBehaviorplaceview?.setState(BottomSheetBehavior.STATE_EXPANDED)
+//        mBottomSheetBehaviorplaceview?.setHideable(false)
+        val request = object : StringRequest(Method.GET,
+            Api.addplacesugg + "?longitude=" + lon + "&latitude=" + lat,
+            Response.Listener { response ->
+                try {
+                    progress.visibility=GONE
+                    val placearray = JSONArray(response.toString())
+                    val newplaces = JsonUtilsTask.getPlaces(placearray)
+
+                    Log.d(TAG, "SuggestionList: "+newplaces)
+
+//                    val iconFactory = IconFactory.getInstance(this@MainDemoActivity)
+//                    val icon = iconFactory.fromResource(R.drawable.mapmarkerforshowplaces)
+//                    for (p in newplaces) {
+//                        val point = LatLng(
+//                            java.lang.Double.parseDouble(p.getLat()),
+//                            java.lang.Double.parseDouble(p.getLon())
+//                        )
+//                        map?.addMarker(
+//                            com.mapbox.mapboxsdk.annotations.MarkerOptions().position(
+//                                point
+//                            ).icon(icon)
+//                        )
+//                    }
+                    if (newplaces.size > 0) {
+                        nearbyAddressview.visibility = VISIBLE
+
+                        val placeArrayAdapter = PlaceAddressAdapter(newplaces,
+                            object : PlaceAddressAdapter.OnPlaceItemSelectListener{
+                                override fun onPlaceItemSelected(mItem: Place?, position: Int) {
+
+                                    ///OnClick
+                                }
+                            })
+
+                        val linearLayoutManager = LinearLayoutManager(applicationContext)
+                        linearLayoutManager.orientation = LinearLayoutManager.VERTICAL
+                        nearbyAddressview.layoutManager = linearLayoutManager
+                        nearbyAddressview.adapter = placeArrayAdapter
+
+                        Log.d(TAG, "SuggestionList: "+nearbyAddressview)
+
+//                        mBottomSheetBehaviorAddress!!.state=BottomSheetBehavior.STATE_COLLAPSED
+//                        mBottomSheetBehaviorAddress!!.isHideable=false
+
+                    } else {
+                        //Toast.makeText(AddPlaceActivity.this,lat+" "+lon, Toast.LENGTH_LONG).show();
+
+                        mBottomSheetBehaviorAddress?.setHideable(true)
+                        mBottomSheetBehaviorAddress?.setState(BottomSheetBehavior.STATE_HIDDEN)
+                        mBottomSheetBehaviorAddress?.setState(BottomSheetBehavior.STATE_EXPANDED)
+                    }
+                } catch (e: JSONException) {
+                    e.printStackTrace()
+
+                }
+            },
+            Response.ErrorListener {
+                progress.visibility=GONE
+                //Toast.makeText(getActivity(),"Network error",Toast.LENGTH_SHORT).show();
+            }) {
+            @Throws(AuthFailureError::class)
+            override fun getHeaders(): Map<String, String> {
+                val params = HashMap<String, String>()
+                if (token != "") {
+                    params["Authorization"] = "bearer $token"
+                }
+                return params
+            }
+        }
+        val queue = Volley.newRequestQueue(this@MainDemoActivity)
+        queue.add(request)
+        //progress.visibility= VISIBLE
+//        findViewById<View>(R.id.buttonskip).setOnClickListener {
+//            clearInputData()
+//            suggestSheetBehavior.setHideable(true)
+//            suggestSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
+//            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED)
+//        }
+    }
+
+
     private fun loadnearbytypes(){
         /*val typesreq= object: StringRequest(
             Method.GET,
@@ -355,7 +720,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 }
 
             },{ error ->
-                JsonUtils.logResponse(error)
+                JsonUtilsTask.logResponse(error)
 
                 Toast.makeText(this@MainDemoActivity, "Not found", Toast.LENGTH_SHORT).show()
             }){}
@@ -363,19 +728,26 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
         val adapter = ArrayAdapter(this,
             android.R.layout.simple_spinner_item,types )
-        nearbytypespineer.adapter = adapter
+        //nearbytypespineer.adapter = adapter
 
     }
 
     private fun rupantor(searchtext: String){
         progress.visibility= VISIBLE
         resultpane.visibility= INVISIBLE
+
+        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+
+
         val rupantorrequest= object : StringRequest(
             Request.Method.POST,
             "https://barikoi.xyz/v1/api/search/"+BarikoiAPI.getAccessToken()+"/rupantor/geocode",
             { response: String ->
                 progress.visibility=GONE
                 try {
+
+                    //hideKeyboard()
+                    hideKeyboard(Activity())
                     val data = JSONObject(response)
                     val placearray = data.getJSONObject("geocoded_address")
 
@@ -453,15 +825,19 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     private fun clearmode() {
         mBottomSheetBehaviorplaceview!!.isHideable=true
         mBottomSheetBehaviorplaceview!!.state = BottomSheetBehavior.STATE_HIDDEN
+        mBottomSheetBehaviorAddress!!.isHideable=true
+        mBottomSheetBehaviorAddress!!.state = BottomSheetBehavior.STATE_HIDDEN
         mBottomSheetBehaviorNearby!!.isHideable=true
         mBottomSheetBehaviorNearby!!.state = BottomSheetBehavior.STATE_HIDDEN
         mBottomSheetBehaviorRupantor!!.isHideable=true
         mBottomSheetBehaviorRupantor!!.state = BottomSheetBehavior.STATE_HIDDEN
         autocompletepane.visibility=GONE
         map_pointer.visibility=GONE
+        btn_addressList.visibility= GONE
         placemarkermap?.clear()
         map?.clear()
         map?.removeOnCameraIdleListener(maprevgeolistener)
+        map?.removeOnCameraIdleListener(maprevgeolistener2)
     }
 
     private fun initSearchautocomplete(){
@@ -488,6 +864,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
 
     }
+
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -555,6 +932,19 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
             enableLocationComponent()
         }
 
+    }
+    interface NearbySerchType {
+        fun NearbySearchType(t: Type, lat: Double, lon: Double)
+        //fun MoreTypeView(clicked: Boolean)
+
+    }
+
+    fun MoreTypeView(clicked: Boolean) {
+        if (clicked) {
+            val dialog = MorePlaceTypeFragment()
+            val ft = supportFragmentManager.beginTransaction()
+            dialog.show(ft, MorePlaceTypeFragment.TAG)
+        }
     }
    /* override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment)

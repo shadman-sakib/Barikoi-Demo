@@ -29,6 +29,11 @@
     </style>
     <style name="OpenSansEditTextStyle" parent="android:Widget.EditText">
         <item name="android:fontFamily">@font/opensansfamily</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:fontFamily">@font/opensansfamily</item>
     </style>
 
 

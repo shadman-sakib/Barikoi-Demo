@@ -3,6 +3,7 @@ package com.barikoi.barikoidemo
 import android.content.Context
 import android.os.Build
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 
@@ -14,7 +15,9 @@ class CustomMapBehaviour(context: Context, attrs: AttributeSet) :
         child: View,
         dependency: View
     ): Boolean {
-        return dependency.id != R.id.bottomsheet_placeview
+        return dependency.id != R.id.fab
+
+
     }
 
     override fun onDependentViewChanged(
@@ -25,13 +28,18 @@ class CustomMapBehaviour(context: Context, attrs: AttributeSet) :
         //Log.d("customMapBehaviour",dependency.getTop()+"");
         val actualPeek = (parent.height * 1.0 / 16.0 * 7.0).toInt()
 
+        Log.d("customMapBehaviour","Actual Peek: " +actualPeek.toString())
+
+        Log.d("customMapBehaviour","Dependency Top: " +dependency.top + " view: " +dependency.id.toString())
+
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             if (dependency.top == 0)
                 dependency.isNestedScrollingEnabled = true
             else
                 dependency.isNestedScrollingEnabled = false
         }
-
 
         if (dependency.top >= actualPeek) {
 

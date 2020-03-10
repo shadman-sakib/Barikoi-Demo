@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -27,6 +27,7 @@
     </style>
     <style name="OpenSansEditTextStyle" parent="android:Widget.EditText">
         <item name="android:fontFamily">@font/opensansfamily</item>
+        <item name="android:textSize">12sp</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
@@ -37,6 +38,34 @@
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textStyle">bold</item>
 
+    </style>
+
+    <style name="ListShareButton">
+        <item name="android:layout_width">32dp</item>
+        <item name="android:layout_height">32dp</item>
+        <item name="android:background">@drawable/list_share_button_selector</item>
+
+        <item name="android:focusable">false</item>
+        <item name="android:elevation" tools:targetApi="lollipop">16dp</item>
+
+    </style>
+
+
+    <style name="FullScreenDialogStyle" parent="AppTheme.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+
+        <!-- Set this to true if you want Full Screen without status bar -->
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsFloating">false</item>
+        <!-- This is important! Don't forget to set window background -->
+        <item name="android:windowBackground">@android:color/white</item>
+
+    </style>
+
+    <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="android:fontFamily">@font/opensansfamily</item>
     </style>
 
 </resources>

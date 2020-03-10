@@ -4,26 +4,77 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/bottomsheet_nearby"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="#FFF7F7F7"
     android:orientation="vertical"
     android:padding="8dp"
     android:paddingTop="16dp"
+    app:layout_insetEdge="bottom"
+
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-    <TextView
-        android:id="@+id/textView4"
+    <LinearLayout
+        android:id="@+id/layoutHeaderNearby"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Nearby Places"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:layout_above="@+id/SecondLinear"
+        android:layout_marginBottom="10dp"
+        android:orientation="vertical">
 
-    <Spinner
-        android:id="@+id/nearbytypespineer"
-        android:layout_marginBottom="16dp"
+        <ImageView
+            android:id="@+id/sliderview"
+            android:layout_width="50dp"
+            android:layout_height="8dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="2dp"
+            android:src="@drawable/border_stroke"/>
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Nearby Places"
+            android:gravity="center"
+            android:fontFamily="@font/opensanslight"
+            android:textAppearance="@style/TextAppearance.AppCompat"
+            android:textSize="14sp"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/SecondLinear"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@color/white"
+        android:orientation="horizontal">
+
+        <androidx.cardview.widget.CardView
+            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            card_view:cardElevation="2dp"
+            card_view:cardUseCompatPadding="true">
+
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/typeList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                Tools:listitem="@layout/type_list_item_nearby_places" />
+
+        </androidx.cardview.widget.CardView>
+    </LinearLayout>
+
+<!--    <Spinner-->
+<!--        android:id="@+id/nearbytypespineer"-->
+<!--        android:layout_marginBottom="16dp"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content" />-->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -54,12 +105,15 @@
     </LinearLayout>
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:scrollbars="none">
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/nearbylistview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         Tools:listitem="@layout/placelistitem"
+        android:visibility="gone"
         />
     </androidx.core.widget.NestedScrollView>
 </LinearLayout>
