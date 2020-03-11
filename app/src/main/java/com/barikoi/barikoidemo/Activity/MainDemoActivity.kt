@@ -19,6 +19,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import kotlinx.android.synthetic.main.bottomsheet_placeview.*
 import kotlinx.android.synthetic.main.content_main_demo.*
 import android.view.View.*
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -296,12 +297,13 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         mBottomSheetBehaviorplaceview?.peekHeight = 200
         mBottomSheetBehaviorAddress?.peekHeight = 200
 
-//        search_rupantor.setOnEditorActionListener { _, actionId, _ ->
-//            if (actionId == EditorInfo.IME_ACTION_DONE) {
-//                rupantor(searchtext = search_rupantor.text.toString())
-//            }
-//            true
-//        }
+
+        search_rupantor.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                rupantor(searchtext = search_rupantor.text.toString())
+            }
+            true
+        }
 
 
         nearbyadapter= PlaceListAdapter(
