@@ -19,15 +19,12 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import kotlinx.android.synthetic.main.bottomsheet_placeview.*
 import kotlinx.android.synthetic.main.content_main_demo.*
 import android.view.View.*
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
-import androidx.annotation.NonNull
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import barikoi.barikoilocation.BarikoiAPI
 import barikoi.barikoilocation.JsonUtils
 import barikoi.barikoilocation.NearbyPlace.NearbyPlaceAPI
@@ -38,7 +35,6 @@ import barikoi.barikoilocation.ReverseGeo.ReverseGeoAPI
 import barikoi.barikoilocation.ReverseGeo.ReverseGeoAPIListener
 import com.android.volley.AuthFailureError
 import com.android.volley.Request
-import com.android.volley.RequestQueue
 import com.android.volley.Response
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
@@ -50,7 +46,7 @@ import com.barikoi.barikoidemo.Model.Api
 import com.barikoi.barikoidemo.Model.Place
 import com.barikoi.barikoidemo.Model.Type
 import com.barikoi.barikoidemo.Task.JsonUtilsTask
-import com.barikoi.barikoidemo.PlaceListAdapter
+import com.barikoi.barikoidemo.Adapter.PlaceListAdapter
 import com.barikoi.barikoidemo.R
 import com.infideap.drawerbehavior.AdvanceDrawerLayout
 import com.mapbox.android.core.location.LocationEngineCallback
@@ -747,7 +743,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 try {
 
                     //hideKeyboard()
-                    hideKeyboard(Activity())
+                    hideKeyboard(this@MainDemoActivity)
+
                     val data = JSONObject(response)
                     val placearray = data.getJSONObject("geocoded_address")
 

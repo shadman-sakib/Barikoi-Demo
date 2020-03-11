@@ -6,6 +6,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -30,6 +33,7 @@ public class CheckOutActivity extends AppCompatActivity {
 
     EditText etInputAddress, etArea, etCity, etZipCode;
     Spinner countryList;
+    String text;
     Button confirm;
     ImageView imageView;
     String getCurrentAddress;
@@ -57,6 +61,7 @@ public class CheckOutActivity extends AppCompatActivity {
         etZipCode = findViewById(R.id.input_ZipCode);
         confirm = findViewById(R.id.btn_confirm);
         progressBar = findViewById(R.id.progress);
+
 
         //countryList = findViewById(R.id.countryList);
 

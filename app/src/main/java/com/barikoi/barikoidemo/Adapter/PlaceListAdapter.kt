@@ -1,4 +1,4 @@
-package com.barikoi.barikoidemo
+package com.barikoi.barikoidemo.Adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import barikoi.barikoilocation.PlaceModels.NearbyPlace
+import com.barikoi.barikoidemo.R
 import java.util.ArrayList
 
 
