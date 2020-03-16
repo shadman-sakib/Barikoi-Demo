@@ -5,6 +5,11 @@
     <!-- Coarse location -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- Or fine location -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <uses-feature
+        android:name="android.hardware.ram.low"
+        android:required="true" />
 
     <dist:module dist:instant="true" />
 
@@ -16,11 +21,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activity.GhurboKoiActivity"></activity>
+        <activity android:name=".Activity.SearchPlaceActivity"
+            android:theme="@style/NoActionBar">
+
+        </activity>
+        <activity android:name=".Activity.GhurboKoiActivity" />
         <activity
             android:name=".Activity.CheckOutActivity"
             android:label="@string/title_activity_check_out"
-            android:windowSoftInputMode="stateHidden"></activity>
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".Activity.MainDemoActivity"
             android:label="@string/title_activity_main_demo"
@@ -34,7 +43,7 @@
         </activity>
         <activity
             android:name=".Activity.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

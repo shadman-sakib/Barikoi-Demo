@@ -4,8 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.PowerManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -21,13 +26,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.barikoi.barikoidemo.Model.Place;
 import com.barikoi.barikoidemo.R;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import barikoi.barikoilocation.PlaceModels.GeoCodePlace;
 import barikoi.barikoilocation.PlaceModels.ReverseGeoPlace;
 import barikoi.barikoilocation.ReverseGeo.ReverseGeoAPI;
 import barikoi.barikoilocation.ReverseGeo.ReverseGeoAPIListener;
 import barikoi.barikoilocation.SearchAutoComplete.SearchAutoCompleteActivity;
+
+import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
 
 public class CheckOutActivity extends AppCompatActivity {
 
@@ -40,6 +49,8 @@ public class CheckOutActivity extends AppCompatActivity {
     Double getLat, getLng;
     ReverseGeoAPIListener reverseGeoAPIListener;
     ProgressBar progressBar;
+
+
     private static final int requestCode = 555;
     private static final String TAG = "Checkout";
 
@@ -63,6 +74,9 @@ public class CheckOutActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress);
 
 
+
+
+
         //countryList = findViewById(R.id.countryList);
 
         //countryList.setSelected(true);
@@ -73,7 +87,13 @@ public class CheckOutActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    Intent intent = new Intent(CheckOutActivity.this, SearchAutoCompleteActivity.class);
+                    //Intent intent = new Intent(CheckOutActivity.this, SearchAutoCompleteActivity.class);
+
+                    etInputAddress.setText("");
+                    etArea.setText("");
+                    etCity.setText("");
+                    etZipCode.setText("");
+                    Intent intent = new Intent(CheckOutActivity.this, SearchPlaceActivity.class);
                     startActivityForResult(intent, requestCode);
 
                 }
@@ -87,6 +107,11 @@ public class CheckOutActivity extends AppCompatActivity {
                     final int DRAWABLE_RIGHT = 2;
                     if(event.getRawX() >= etInputAddress.getRight() - etInputAddress.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width()) {
                         // your action for drawable click event
+
+                        etInputAddress.setText("");
+                        etArea.setText("");
+                        etCity.setText("");
+                        etZipCode.setText("");
 
                         progressBar.setVisibility(View.VISIBLE);
                         getCurrentAddress = String.valueOf(getIntent().getSerializableExtra("location"));
@@ -133,6 +158,7 @@ public class CheckOutActivity extends AppCompatActivity {
     }
 
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode,resultCode,data);
@@ -140,16 +166,24 @@ public class CheckOutActivity extends AppCompatActivity {
         if (requestCode == this.requestCode) {
             if(resultCode == Activity.RESULT_OK){
 
-                GeoCodePlace place = (GeoCodePlace) data.getSerializableExtra("place_selected");
-                Log.d(TAG, "selected place: " +place.toString());
-                etInputAddress.setText(place.toString());
-                etArea.setText(place.getArea());
-                etCity.setText(place.getCity());
-                Log.d(TAG, "Zip Code: " +place.getPostalcode());
-                if(!place.getPostalcode().equals("null")){
-                    etZipCode.setText(place.getPostalcode());
-                }else {
-                    etZipCode.setText(" ");
+                String places = data.getStringExtra("suggestions");
+                Log.d(TAG, "selected place: " +places);
+
+                if (places != null && !places.equals("null")) {
+                    etInputAddress.setText(places);
+                }else{
+                    Place place = (Place) data.getSerializableExtra("result");
+                    Log.d(TAG, "selected place: " +place.toString());
+                    etInputAddress.setText(place.toString());
+                    etArea.setText(place.getArea());
+                    etCity.setText(place.getCity());
+                    Log.d(TAG, "Zip Code: " + place.getPostalcode());
+                    if (!place.getPostalcode().equals("null")) {
+                        etZipCode.setText(place.getPostalcode());
+                    } else {
+                        etZipCode.setText(" ");
+                    }
+
                 }
 
                 getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);

@@ -28,6 +28,8 @@ import org.json.JSONObject;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import barikoi.barikoilocation.PlaceModels.GeoCodePlace;
+
 /**
  * This class is used to handle all the JSON Data
  * Created by Sakib on 1/3/2018.

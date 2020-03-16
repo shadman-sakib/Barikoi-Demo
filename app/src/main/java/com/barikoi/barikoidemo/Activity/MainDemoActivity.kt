@@ -6,7 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.os.PowerManager.*
+import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
@@ -65,6 +70,7 @@ import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.Style
 import com.shreyaspatil.material.navigationview.MaterialNavigationView
+import com.xiaoyi.action.Platform.initialize
 import kotlinx.android.synthetic.main.bottomsheet_addresslist.*
 import kotlinx.android.synthetic.main.bottomsheet_nearbylist.*
 import kotlinx.android.synthetic.main.bottomsheet_placeview.textview_address
@@ -105,9 +111,9 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
     private val token = ""
 
-
     private val TAG = "MainActivityDemo"
 
+    @SuppressLint("InvalidWakeLockTag")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_demo)
@@ -163,6 +169,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         mapView.getMapAsync(this)
         initViews()
         initSearchautocomplete()
+        //checkOptimization()
+
 
 
     }
@@ -200,6 +208,40 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 //        }
 //
 //    }
+
+    @SuppressLint( "InvalidWakeLockTag", "WakelockTimeout")
+    private fun checkOptimization() {
+       var tag = "com.barikoi.barikoidemo:LOCK"
+
+        Log.d(TAG, "Huawei: " +Build.VERSION.SDK_INT)
+        Log.d(TAG, "Huawei: " +Build.MANUFACTURER)
+
+        if (Build.VERSION.SDK_INT >= 21 && Build.MANUFACTURER == "HUAWEI") {
+            tag = "LocationManagerService"
+            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+
+        Log.d(TAG, "Huawei: " +tag)
+
+//        val wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).newWakeLock(
+//            1, tag)
+//        Log.d(TAG, "WakeLog: " +wakeLock.toString())
+
+//        wakeLock.acquire()
+//        Log.d(TAG, "WakeLog: " +wakeLock.acquire().toString())
+
+
+//        val wakeLock: PowerManager.WakeLock =
+//            (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+//                newWakeLock(1, tag).apply {
+//                    acquire()
+//                }
+//            }
+//
+//        Log.d(TAG, "WakeLog: " +wakeLock.toString())
+
+
+    }
 
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -245,15 +287,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                     currentLng = result.lastLocation!!.longitude
                     map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(result?.lastLocation!!.latitude,result.lastLocation!!.longitude),17.0))
 
-                    Log.d(TAG,"Map: " +map.toString())
-
-                    val ss:String ?= intent.getStringExtra("key")
-
-                    if (ss.equals("fromCheckout")){
-                        //btn_send.visibility= VISIBLE
-                        initReversegeo()
-                    }
-
+                    //Log.d(TAG,"Map: " +map.toString())
                 }
 
                 override fun onFailure(exception: Exception) {
@@ -288,27 +322,20 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
    
 
     private fun initViews(){
+
         mBottomSheetBehaviorplaceview = BottomSheetBehavior.from(bottomsheet_placeview)
         mBottomSheetBehaviorAddress = BottomSheetBehavior.from(bottomsheet_addresslist)
         mBottomSheetBehaviorNearby = BottomSheetBehavior.from(bottomsheet_nearby)
         mBottomSheetBehaviorRupantor = BottomSheetBehavior.from(bottomsheet_rupantor)
-        mBottomSheetBehaviorNearby?.peekHeight=600
+        mBottomSheetBehaviorNearby?.peekHeight=500
         mBottomSheetBehaviorRupantor?.peekHeight=200
         mBottomSheetBehaviorplaceview?.peekHeight = 200
         mBottomSheetBehaviorAddress?.peekHeight = 200
 
 
-        search_rupantor.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                rupantor(searchtext = search_rupantor.text.toString())
-            }
-            true
-        }
 
 
-        nearbyadapter= PlaceListAdapter(
-            ArrayList<NearbyPlace>(),
-            object : PlaceListAdapter.OnPlaceItemSelectListener {
+        nearbyadapter= PlaceListAdapter(ArrayList<NearbyPlace>(), object : PlaceListAdapter.OnPlaceItemSelectListener {
                 override fun onPlaceItemSelected(mItem: NearbyPlace?, position: Int) {
                     placemarkermap?.get(mItem!!.code)?.showInfoWindow(map!!, mapView)
                 }
@@ -372,6 +399,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         }
 
         layoutHeader.setOnClickListener { v ->
+            mBottomSheetBehaviorAddress?.isHideable = true
             mBottomSheetBehaviorAddress!!.state =
                 BottomSheetBehavior.STATE_HIDDEN
         }
@@ -387,7 +415,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 .getAddress(object: ReverseGeoAPIListener {
                     override fun onFailure(message: String?) {
                         progress.visibility=GONE
-                        Toast.makeText(this@MainDemoActivity,message,Toast.LENGTH_LONG).show()
+                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
                     }
 
                     override fun reversedAddress(place: ReverseGeoPlace?) {
@@ -462,9 +490,9 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         typeS.add(Type("", "Market", getString(R.string.market),
             R.drawable.commercial
         ))
-        typeS.add(Type("Attractions", "", getString(R.string.attractions),
-            R.drawable.landmark
-        ))
+//        typeS.add(Type("Attractions", "", getString(R.string.attractions),
+//            R.drawable.landmark
+//        ))
 
 //        layoutHeaderNearby.setOnClickListener { v ->
 //            mBottomSheetBehaviorNearby!!.state =
@@ -529,7 +557,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                             nearbyadapter?.setplaces(places)
                         }
                         override fun onFailure(message: String?) {
-                            Toast.makeText(this@MainDemoActivity,"could not get nearby places",Toast.LENGTH_SHORT).show()
+                            Toast.makeText(applicationContext,"could not get nearby places",Toast.LENGTH_SHORT).show()
                         }
 
                     })
@@ -538,7 +566,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
             }
 
             override fun onFailure(exception: Exception) {
-                Toast.makeText(this@MainDemoActivity,"could not get location",Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext,"could not get location",Toast.LENGTH_SHORT).show()
             }
 
         })
@@ -548,6 +576,14 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         clearmode()
         mBottomSheetBehaviorRupantor!!.state=BottomSheetBehavior.STATE_EXPANDED
         mBottomSheetBehaviorRupantor!!.isHideable=false
+
+        search_rupantor.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                rupantor(searchtext = search_rupantor.text.toString())
+            }
+            true
+        }
+
     }
 
     private fun initReversegeo() {
@@ -555,28 +591,27 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         map_pointer.visibility= VISIBLE
         mBottomSheetBehaviorplaceview!!.state=BottomSheetBehavior.STATE_EXPANDED
         mBottomSheetBehaviorplaceview!!.isHideable = false
-        Log.d(TAG,"Map 1: " +map.toString())
         map?.addOnCameraIdleListener (maprevgeolistener)
 
-        val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
-
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                // Do something for new state
-
-                // this part hides the button immediately and waits bottom sheet
-                // to collapse to show
-                if (BottomSheetBehavior.STATE_DRAGGING == newState) {
-                    fab.animate().scaleX(0f).scaleY(0f).setDuration(300).start()
-                } else if (BottomSheetBehavior.STATE_COLLAPSED == newState) {
-                    fab.animate().scaleX(1f).scaleY(1f).setDuration(300).start()
-                }
-            }
-
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                // Do something for slide offset
-
-            }
-        }
+//        val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+//
+//            override fun onStateChanged(bottomSheet: View, newState: Int) {
+//                // Do something for new state
+//
+//                // this part hides the button immediately and waits bottom sheet
+//                // to collapse to show
+//                if (BottomSheetBehavior.STATE_DRAGGING == newState) {
+//                    fab.animate().scaleX(0f).scaleY(0f).setDuration(300).start()
+//                } else if (BottomSheetBehavior.STATE_COLLAPSED == newState) {
+//                    fab.animate().scaleX(1f).scaleY(1f).setDuration(300).start()
+//                }
+//            }
+//
+//            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+//                // Do something for slide offset
+//
+//            }
+//        }
         //mBottomSheetBehaviorplaceview!!.setBottomSheetCallback(bottomSheetCallback)
     }
     val maprevgeolistener= object: MapboxMap.OnCameraIdleListener {
@@ -589,7 +624,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 .getAddress(object: ReverseGeoAPIListener {
                     override fun onFailure(message: String?) {
                         progress.visibility=GONE
-                        Toast.makeText(this@MainDemoActivity,message,Toast.LENGTH_LONG).show()
+                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
                     }
 
                     override fun reversedAddress(place: ReverseGeoPlace?) {
@@ -665,7 +700,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
                         mBottomSheetBehaviorAddress?.setHideable(true)
                         mBottomSheetBehaviorAddress?.setState(BottomSheetBehavior.STATE_HIDDEN)
-                        mBottomSheetBehaviorAddress?.setState(BottomSheetBehavior.STATE_EXPANDED)
+                        //mBottomSheetBehaviorAddress?.setState(BottomSheetBehavior.STATE_EXPANDED)
                     }
                 } catch (e: JSONException) {
                     e.printStackTrace()
@@ -724,9 +759,9 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
             }){}
         RequestQueueSingleton.getInstance(this).requestQueue!!.add(typesreq)*/
 
-        val adapter = ArrayAdapter(this,
-            android.R.layout.simple_spinner_item,types )
-        //nearbytypespineer.adapter = adapter
+//        val adapter = ArrayAdapter(this,
+//            android.R.layout.simple_spinner_item,types )
+//        //nearbytypespineer.adapter = adapter
 
     }
 
@@ -755,7 +790,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                     fixed_addresstext.text=data.getString("fixed_address")
                     rupantor_addresstext.text=place.address
                     rupantor_type.text=place.type
-                    rupantor_ucodetext.text=place.code
+                    rupantor_scoreText.text=data.getString("confidence_score_percentage")
                     rupantor_status.text=data.getString("address_status")
                     resultpane.visibility= VISIBLE
                     plotmarker(place)
@@ -763,7 +798,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                     progress.visibility=GONE
                     try {
                         val data = JSONObject(response)
-                        Toast.makeText(this, data.getString("Message"), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext, data.getString("Message"), Toast.LENGTH_SHORT).show()
                     } catch (ex: JSONException) {
                         ex.printStackTrace()
                     }
@@ -774,7 +809,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 progress.visibility=GONE
                 JsonUtils.logResponse(error)
 
-                Toast.makeText(this@MainDemoActivity, "Not found", Toast.LENGTH_SHORT).show()
+                Toast.makeText(applicationContext, "Not found", Toast.LENGTH_SHORT).show()
             }) {
 
 

@@ -8,10 +8,9 @@ import java.io.Serializable;
  * Created by Sakib on 04-Jan-17.
  */
 public class Place implements Serializable {
-    private String address, lon,lat,code,city,area,postalcode, type,subType,imglink,route,ward,zone,phoneNumber;
+    private String address, lon,lat,code,city,area,postalcode, type,subType,imglink,route,ward,zone,phoneNumber, score;
     private float distance;
 
-    public Place(){}
     public Place(String address, String lon, String lat, String code, String city, String area, String postalcode, String type, String subType, String phoneNumber){
         this.address=address;
         this.lat=lat;
@@ -30,6 +29,7 @@ public class Place implements Serializable {
         this.phoneNumber=phoneNumber;
 
     }
+
     public Place(String address, String lon, String lat, String code, String city, String area, String postalcode, String type, String subType ){
         this.address=address;
         this.lat=lat;
@@ -176,4 +176,11 @@ public class Place implements Serializable {
     }
 
 
+    public String getScore() {
+        return score;
+    }
+
+    public void setScore(String score) {
+        this.score = score;
+    }
 }

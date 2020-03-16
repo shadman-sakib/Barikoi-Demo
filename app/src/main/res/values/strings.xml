@@ -28,8 +28,11 @@
     <string name="InputAddress">Enter address</string>
     <string name="Area">Area</string>
     <string name="City">City</string>
-    <string name="ZipCode">Zip Code</string>
+    <string name="PostCode">Post Code</string>
     <string name="Country">Country</string>
+
+    <string name="ok">ok</string>
+    <string name="cancel">Cancel</string>
 
     <string name="couldnot_connect">Could not connect</string>
     <string name="prob_change_server">Problem or change in server, please wait and try again</string>
@@ -74,4 +77,7 @@
     <string name="generalStore">General Store</string>
     <string name="market">Market</string>
     <string name="pharmacy">Pharmacy</string>
+
+
+    <string name="couldnt_find_what_you_were_looking_for_let_us_know">Could not find what you were looking for? let us know.</string>
 </resources>

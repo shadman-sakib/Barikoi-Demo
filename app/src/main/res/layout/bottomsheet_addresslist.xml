@@ -27,7 +27,6 @@
                 android:id="@+id/layoutHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/linearLayout3"
                 android:layout_marginBottom="4dp"
                 android:orientation="vertical">
 

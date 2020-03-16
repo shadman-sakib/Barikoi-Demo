@@ -163,12 +163,12 @@
                     android:id="@+id/textView9"
                     android:layout_width="120dp"
                     android:layout_height="wrap_content"
-                    android:text="Unique Code"
+                    android:text="Score"
                     android:fontFamily="@font/opensansbold"
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/rupantor_ucodetext"
+                    android:id="@+id/rupantor_scoreText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     Tools:text="TextView" />
