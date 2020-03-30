@@ -7,6 +7,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.TextAppearanceSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,6 +60,11 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
         holder.mItem = places.get(position);
+
+        Log.d("Search", "Onclicked Position: " +holder.mItem.getAddress());
+        Log.d("Search", "Onclicked Placeview: " +holder.placeView);
+        Log.d("Search", "Onclicked Placeview: " +holder.placeView.toString());
+        Log.d("Search", "Onclicked AreaTag: " +holder.areatag);
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -186,6 +192,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
     }
     public static void setAdvancedDetailsHighlight(TextView textView, String fullText, String searchText) {
         searchText = searchText.replace("'", "");
+
+        Log.d("Search", "Onclicked: " +searchText);
 
         // highlight search text
         if (null != searchText && !searchText.isEmpty()) {

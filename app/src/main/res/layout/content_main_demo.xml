@@ -21,27 +21,26 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab"
+        android:visibility="visible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="32dp"
+        android:src="@drawable/gpsindicator1"
+        app:backgroundTint="@color/white"
+        app:borderWidth="0dp"
+        app:elevation="6dp"
+        app:fabSize="normal"
+        app:layout_anchorGravity="top|end"
+        app:layout_dodgeInsetEdges="bottom"
+        app:pressedTranslationZ="12dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="11dp" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            android:visibility="visible"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical|right"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="4dp"
-            android:src="@drawable/ic_gps_indicator"
-            app:backgroundTint="@color/white"
-            android:elevation="2dp"
-            app:borderWidth="0dp"
-            app:fabSize="normal"
-            app:layout_anchorGravity="top|end"
-            app:layout_dodgeInsetEdges="bottom"
-            app:pressedTranslationZ="12dp" />
 
 <RelativeLayout
     android:layout_width="match_parent"
@@ -76,6 +75,54 @@
     </fragment>
 
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/etRev"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginLeft="4dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/edittext_background">
+
+            <EditText
+                android:id="@+id/editTextRev"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@null"
+                android:drawableRight="@drawable/ic_close"
+                android:drawableTint="@android:color/darker_gray"
+                android:drawablePadding="5dp"
+                android:padding="12dp"
+                android:ellipsize="end"
+                android:focusable="true"
+                android:gravity="center|fill"
+                android:hint="House 1, Road 1 ..."
+                android:imeOptions="actionDone"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:transitionName="autocomplete" />
+
+            <ProgressBar
+                android:id="@+id/progressBarSearchPlace"
+                style="?android:attr/progressBarStyleInverse"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:visibility="gone"/>
+
+        </RelativeLayout>
+
+
+    </LinearLayout>
+
 
 
     <!--<fragment
@@ -148,6 +195,6 @@
 
         </Button>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

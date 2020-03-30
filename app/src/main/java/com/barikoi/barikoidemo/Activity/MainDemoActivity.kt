@@ -589,8 +589,12 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     private fun initReversegeo() {
         clearmode()
         map_pointer.visibility= VISIBLE
-        mBottomSheetBehaviorplaceview!!.state=BottomSheetBehavior.STATE_EXPANDED
-        mBottomSheetBehaviorplaceview!!.isHideable = false
+
+        etRev.visibility = VISIBLE
+
+        /*add if needed*/
+//        mBottomSheetBehaviorplaceview!!.state=BottomSheetBehavior.STATE_EXPANDED
+//        mBottomSheetBehaviorplaceview!!.isHideable = false
         map?.addOnCameraIdleListener (maprevgeolistener)
 
 //        val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
@@ -630,8 +634,11 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                     override fun reversedAddress(place: ReverseGeoPlace?) {
                         Log.d(TAG, "reversedAddress")
                         progress.visibility=GONE
-                        textview_address.text=place?.address
-                        textview_area.text=place?.area
+
+                        editTextRev.setText(place?.address)
+                        /*add if needed*/
+                        //textview_address.text=place?.address
+                        //textview_area.text=place?.area
 //                        btn_send.setOnClickListener {
 //                            val intent = Intent(this@MainDemoActivity, CheckOutActivity::class.java)
 //                            intent.putExtra("address", place.toString())
@@ -868,8 +875,10 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         autocompletepane.visibility=GONE
         map_pointer.visibility=GONE
         btn_addressList.visibility= GONE
+        etRev.visibility= GONE
         placemarkermap?.clear()
         map?.clear()
+
         map?.removeOnCameraIdleListener(maprevgeolistener)
         map?.removeOnCameraIdleListener(maprevgeolistener2)
     }
@@ -898,8 +907,6 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
 
     }
-
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
