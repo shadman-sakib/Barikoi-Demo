@@ -46,12 +46,14 @@
             android:layout_height="50dp"
             android:layout_marginRight="4dp"
             android:layout_marginTop="4dp"
-            android:layout_marginLeft="4dp">
+            android:layout_marginLeft="4dp"
+            android:background="@drawable/edittext_background"
+            android:weightSum="2">
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@drawable/edittext_background">
+                android:layout_weight="2">
 
                 <EditText
                     android:id="@+id/editText1"
@@ -83,9 +85,32 @@
                     android:layout_alignParentRight="true" />
 
             </RelativeLayout>
+            <CheckBox
+                android:id="@+id/locationChecked"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginRight="8dp">
+
+            </CheckBox>
 
 
         </LinearLayout>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginLeft="4dp"
+            android:drawableRight="@drawable/ic_info"
+            android:drawablePadding="4dp"
+            android:drawableTint="@color/colorGray"
+            android:text="@string/tvhintcheckbox"
+            android:textColor="@color/colorGray"
+            android:gravity="right"
+            android:textSize="11sp">
+
+        </TextView>
 
 
 

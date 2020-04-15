@@ -28,6 +28,7 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -108,6 +109,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     private var nearbySerchType: NearbySerchType?= null
     private var latitude = 0.0
     private var longitude = 0.0
+
+    private var place: Place? = null
 
     private val token = ""
 
@@ -842,8 +845,28 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 )
             ).title( p.getAddress())
         )
+        Log.d(TAG, "PlotMarker 1: " +p.code)
+        Log.d(TAG, "PlotMarker 1: " +m.toString())
         placemarkermap?.put(p.code, m)
     }
+
+    private fun plotmarkerSearch(p: Place){
+        placemarkermap?.clear()
+        map?.clear()
+        Log.d(TAG, "PlotMarker: " +p.lat.toDouble() + "," +p.lon.toDouble())
+        map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(p.lat.toDouble(), p.lon.toDouble()),17.0))
+        val m = map!!.addMarker(
+            MarkerOptions().position(
+                LatLng(
+                    p.lat.toDouble(),
+                    p.lon.toDouble()
+                )
+            ).title( p.address)
+        )
+        Log.d(TAG, "PlotMarker 2: " +p.code)
+        placemarkermap?.put(p.code, m)
+    }
+
     private fun plotmarkers(places: List<NearbyPlace>, latitude: Double , longitude: Double ){
         placemarkermap?.clear()
         map?.clear()
@@ -858,6 +881,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 ).title( p.getAddress())
             )
             latlngboundsbuilder.include(LatLng(p.latitude.toDouble(),p.longitude.toDouble()))
+            Log.d(TAG, "PlotMarker 3: " +p.code)
             placemarkermap?.put(p.code, m)
         }
         map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude),16.0))
@@ -885,27 +909,70 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
     private fun initSearchautocomplete(){
         clearmode()
-        autocompletepane.visibility= VISIBLE
-        Log.d("mainactivitydemo","autocomplete initiated")
-        val searchAutocompleteFragment =
-            supportFragmentManager.findFragmentById(R.id.barikoiSearchAutocompleteFragment) as SearchAutocompleteFragment?
-        searchAutocompleteFragment!!.setPlaceSelectionListener(object :
-            SearchAutocompleteFragment.PlaceSelectionListener {
-            override fun onPlaceSelected(place: GeoCodePlace?) {
+
+//        autocompletepane.visibility= VISIBLE
+//        Log.d("mainactivitydemo","autocomplete initiated")
+//        val searchAutocompleteFragment =
+//            supportFragmentManager.findFragmentById(R.id.barikoiSearchAutocompleteFragment) as SearchAutocompleteFragment?
+//        searchAutocompleteFragment!!.setPlaceSelectionListener(object :
+//            SearchAutocompleteFragment.PlaceSelectionListener {
+//            override fun onPlaceSelected(place: GeoCodePlace?) {
+//                mBottomSheetBehaviorplaceview!!.isHideable = false
+//                mBottomSheetBehaviorplaceview!!.state = BottomSheetBehavior.STATE_EXPANDED
+//                plotmarker(place!!)
+//                textview_address.text=place.address
+//                textview_area.text=place.area
+//                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+//
+//            }
+//            override fun onFailure(error: String) {
+//
+//            }
+//        })
+
+        etRev.visibility = VISIBLE
+        editTextRev.setOnClickListener { v ->
+
+            val intent = Intent(this@MainDemoActivity, SearchPlaceActivity::class.java)
+            intent.putExtra("lat",currentLat)
+            intent.putExtra("lng",currentLng)
+            startActivityForResult(intent, requestCode)
+
+        }
+
+
+    }
+
+    public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Log.d(TAG, "requestCode: $requestCode")
+        if (requestCode == this.requestCode) {
+            if (resultCode == Activity.RESULT_OK) {
+
+                val address = data!!.getSerializableExtra("result") as Place
+                place = address
+                Log.d(TAG, "Search Result: " +place!!.lat)
+                //showProgressMain();
+                //currentLocation!!.getAddressByGeoCode(place!!.code)
                 mBottomSheetBehaviorplaceview!!.isHideable = false
                 mBottomSheetBehaviorplaceview!!.state = BottomSheetBehavior.STATE_EXPANDED
-                plotmarker(place!!)
-                textview_address.text=place.address
-                textview_area.text=place.area
-                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+                plotmarkerSearch(place!!)
+                textview_address.text= place!!.address
+                textview_area.text= place!!.area
+
+                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
 
             }
-            override fun onFailure(error: String) {
+            if (resultCode == Activity.RESULT_CANCELED) {
+                if (data != null) {
+                    val error = data.getStringExtra("error")
+                    Log.d(TAG, "Error: " + error!!)
+                } else {
 
+                }
+                //Write your code if there's no result
             }
-        })
-
-
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

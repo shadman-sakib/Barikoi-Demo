@@ -29,6 +29,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -76,8 +78,10 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
     private TextView addplace,couldntfind;
     private LinearLayout searchdeeplayout;
     private TextView searchdeep;
-    private String suggestText;
+    private String suggestText, params;
     private TextView textV;
+    private String Lat, Lon;
+    private CheckBox locationChecked;
     //PlaceTask placeTask;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -91,6 +95,10 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
         //GetSavedPlace();
         progressBar=findViewById(R.id.progressBarSearchPlace);
         progressBar.setVisibility(View.GONE);
+        locationChecked = findViewById(R.id.locationChecked);
+
+
+
 
         //Place place=GetSavedPlace();
 //        if(!place.getAddress().equals("")) {
@@ -106,7 +114,8 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
 //        else {
 //            linearLayout.setVisibility(View.GONE);
 //        }
-
+        Lat = String.valueOf(getIntent().getDoubleExtra("lat", 1));
+        Lon = String.valueOf(getIntent().getDoubleExtra("lng", 1));
 
         editText.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -278,6 +287,19 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
      */
     public void generatelist(final String nameOrCode) {
 
+//        locationChecked.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+//
+//            }
+//        });
+
+        if(locationChecked.isChecked()){
+            params = "?search="+nameOrCode+"&latitude="+Lat+"&longitude="+Lon;
+        }else {
+            params = "?search="+nameOrCode;
+        }
+
         //loading.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
         editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,0,0);
@@ -285,7 +307,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
         items.clear();
         if (nameOrCode.length() > 0) {
             StringRequest request = new StringRequest(Request.Method.POST,
-                    Api.INSTANCE.getSearchUrl(),
+                    Api.INSTANCE.getSearchUrl()+ params,
                     (String response) -> {
                         //loading.setVisibility(View.GONE);
 

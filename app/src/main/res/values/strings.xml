@@ -79,5 +79,8 @@
     <string name="pharmacy">Pharmacy</string>
 
 
+    <string name="tvhintcheckbox">Tick the bar for enabling Geo-Search</string>
+
+
     <string name="couldnt_find_what_you_were_looking_for_let_us_know">Could not find what you were looking for? let us know.</string>
 </resources>

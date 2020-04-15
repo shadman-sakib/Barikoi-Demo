@@ -15,7 +15,8 @@ class CustomMapBehaviour(context: Context, attrs: AttributeSet) :
         child: View,
         dependency: View
     ): Boolean {
-        return dependency.id != R.id.fab
+        return dependency.id != R.id.fab &&
+                dependency.id != R.id.autocompletepane
 
 
     }
