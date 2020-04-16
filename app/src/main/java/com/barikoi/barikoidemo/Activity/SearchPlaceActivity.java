@@ -178,20 +178,29 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
 
                 suggestText = editable.toString();
                 textV = findViewById(R.id.tvSuggestions);
-                textV.setText(suggestText);
-                textV.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
 
-                        //ReturnPlace(Place);
+                String key = getIntent().getStringExtra("key");
+                Log.d("Search", key);
+                if (key.equals("mainactivity") && !key.equals("null")){
+                    textV.setVisibility(View.GONE);
+                }else {
+                    textV.setVisibility(View.VISIBLE);
+                    textV.setText(suggestText);
+                    textV.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
 
-                        Intent returnIntent = new Intent();
-                        returnIntent.putExtra("suggestions",textV.getText().toString().trim());
-                        setResult(Activity.RESULT_OK,returnIntent);
-                        finish();
+                            //ReturnPlace(Place);
 
-                    }
-                });
+                            Intent returnIntent = new Intent();
+                            returnIntent.putExtra("suggestions",textV.getText().toString().trim());
+                            setResult(Activity.RESULT_OK,returnIntent);
+                            finish();
+
+                        }
+                    });
+                }
+
 
             }
         });

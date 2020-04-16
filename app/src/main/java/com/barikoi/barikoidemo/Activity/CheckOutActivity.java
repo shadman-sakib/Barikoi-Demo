@@ -94,6 +94,7 @@ public class CheckOutActivity extends AppCompatActivity {
                     etCity.setText("");
                     etZipCode.setText("");
                     Intent intent = new Intent(CheckOutActivity.this, SearchPlaceActivity.class);
+                    intent.putExtra("key", "checkoutactivity");
                     startActivityForResult(intent, requestCode);
 
                 }

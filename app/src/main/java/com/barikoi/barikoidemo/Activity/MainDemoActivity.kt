@@ -148,7 +148,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 R.id.nav_nearby -> initNearby()
                 R.id.nav_addresses -> initAddress()
                 R.id.nav_checkout ->{val intent = Intent(this@MainDemoActivity, CheckOutActivity::class.java)
-                    Log.d(TAG, "Current Location: " + currentlocation)
+                    Log.d(TAG, "Current Location: " + currentLat + "," +currentLng)
                     intent.putExtra("location",currentlocation.toString())
                     intent.putExtra("lat",currentLat)
                     intent.putExtra("lng",currentLng)
@@ -451,10 +451,10 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         ))
 
         //typeS.add(Type("More", "", getString(R.string.more), R.drawable.more))
-        typeS.add(Type("", "Hospital", getString(R.string.hospital),
+        typeS.add(Type("Hospital", "Hospital", getString(R.string.hospital),
             R.drawable.hospital
         ))
-        typeS.add(Type("", "Pharmacy", getString(R.string.pharmacy),
+        typeS.add(Type("Pharmacy", "Pharmacy", getString(R.string.pharmacy),
             R.drawable.pharmacy
         ))
         typeS.add(Type("Bank", "", getString(R.string.bank),
@@ -463,7 +463,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         typeS.add(Type("Education", "", getString(R.string.education),
             R.drawable.education
         ))
-        typeS.add(Type("", "Police Station", getString(R.string.policestation),
+        typeS.add(Type("Police Station", "Police Station", getString(R.string.policestation),
             R.drawable.policestation
         ))
         typeS.add(Type("Hotel", "", getString(R.string.hotel),
@@ -475,22 +475,22 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         typeS.add(Type("fuel", "", getString(R.string.fuel),
             R.drawable.gas
         ))
-        typeS.add(Type("", "BKash", getString(R.string.bkash),
+        typeS.add(Type("BKash", "BKash", getString(R.string.bkash),
             R.drawable.bkash
         ))
-        typeS.add(Type("", "UCash", getString(R.string.ucash),
+        typeS.add(Type("UCash", "UCash", getString(R.string.ucash),
             R.drawable.ucash2
         ))
-        typeS.add(Type("", "SureCash", getString(R.string.surecash),
+        typeS.add(Type("SureCash", "SureCash", getString(R.string.surecash),
             R.drawable.surecash
         ))
-        typeS.add(Type("", "Parking", getString(R.string.parking),
+        typeS.add(Type("Parking", "Parking", getString(R.string.parking),
             R.drawable.parking
         ))
-        typeS.add(Type("", "General Store", getString(R.string.generalStore),
+        typeS.add(Type("General Store", "General Store", getString(R.string.generalStore),
             R.drawable.commercial
         ))
-        typeS.add(Type("", "Market", getString(R.string.market),
+        typeS.add(Type("Market", "Market", getString(R.string.market),
             R.drawable.commercial
         ))
 //        typeS.add(Type("Attractions", "", getString(R.string.attractions),
@@ -546,6 +546,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     private fun getnearby(type : String){
         nearbylistview.visibility = VISIBLE
 
+        Log.d(TAG, "Type: " +type)
+
         map?.locationComponent!!.locationEngine?.getLastLocation(object :LocationEngineCallback<LocationEngineResult>{
             override fun onSuccess(result: LocationEngineResult?) {
                 NearbyPlaceAPI.builder(this@MainDemoActivity)
@@ -560,7 +562,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                             nearbyadapter?.setplaces(places)
                         }
                         override fun onFailure(message: String?) {
-                            Toast.makeText(applicationContext,"could not get nearby places",Toast.LENGTH_SHORT).show()
+                            Toast.makeText(applicationContext,"No nearby place found",Toast.LENGTH_SHORT).show()
                         }
 
                     })
@@ -885,7 +887,11 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
             placemarkermap?.put(p.code, m)
         }
         map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude),16.0))
-        map?.moveCamera(CameraUpdateFactory.newLatLngBounds(latlngboundsbuilder.build(),30))
+        if(places.size > 1) {
+            map?.moveCamera(CameraUpdateFactory.newLatLngBounds(latlngboundsbuilder.build(), 30))
+        }else{
+            map?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(places.get(0).latitude.toDouble(), places.get(0).longitude.toDouble()),17.0))
+        }
     }
     private fun clearmode() {
         mBottomSheetBehaviorplaceview!!.isHideable=true
@@ -934,6 +940,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         editTextRev.setOnClickListener { v ->
 
             val intent = Intent(this@MainDemoActivity, SearchPlaceActivity::class.java)
+            intent.putExtra("key", "mainactivity")
             intent.putExtra("lat",currentLat)
             intent.putExtra("lng",currentLng)
             startActivityForResult(intent, requestCode)
