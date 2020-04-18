@@ -251,10 +251,17 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         Log.d(TAG,"map ready")
         map = mapboxMap
 
-        mapboxMap.setStyle(Style.MAPBOX_STREETS) {
+        mapboxMap.setStyle(Style.Builder().fromUrl(getString(R.string.map_view_styleUrl))) {
+
+            // Custom map style has been loaded and map is now ready
             enableLocationComponent()
 
         }
+
+//        mapboxMap.setStyle(Style.MAPBOX_STREETS) {
+//            enableLocationComponent()
+//
+//        }
 
     }
 
@@ -937,15 +944,32 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 //        })
 
         etRev.visibility = VISIBLE
-        editTextRev.setOnClickListener { v ->
+//        editTextRev.setOnClickListener { v ->
+//
+//            val intent = Intent(this@MainDemoActivity, SearchPlaceActivity::class.java)
+//            intent.putExtra("key", "mainactivity")
+//            intent.putExtra("lat",currentLat)
+//            intent.putExtra("lng",currentLng)
+//            startActivityForResult(intent, requestCode)
+//
+//        }
 
-            val intent = Intent(this@MainDemoActivity, SearchPlaceActivity::class.java)
-            intent.putExtra("key", "mainactivity")
-            intent.putExtra("lat",currentLat)
-            intent.putExtra("lng",currentLng)
-            startActivityForResult(intent, requestCode)
+        editTextRev.setOnTouchListener(object : View.OnTouchListener {
+            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+                when (event?.action) {
+                    MotionEvent.ACTION_UP ->
+                    {
+                        val intent = Intent(this@MainDemoActivity, SearchPlaceActivity::class.java)
+                        intent.putExtra("key", "mainactivity")
+                        intent.putExtra("lat",currentLat)
+                        intent.putExtra("lng",currentLng)
+                        startActivityForResult(intent, requestCode)
+                    }
+                }
 
-        }
+                return v?.onTouchEvent(event) ?: true
+            }
+        })
 
 
     }
