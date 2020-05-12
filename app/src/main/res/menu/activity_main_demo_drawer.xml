@@ -28,6 +28,10 @@
             android:id="@+id/nav_checkout"
             android:icon="@drawable/ic_menu_checkout"
             android:title="@string/CheckOut" />
+        <item
+            android:id="@+id/nav_navigation"
+            android:icon="@drawable/ic_distance"
+            android:title="@string/navigation" />
     </group>
 
 

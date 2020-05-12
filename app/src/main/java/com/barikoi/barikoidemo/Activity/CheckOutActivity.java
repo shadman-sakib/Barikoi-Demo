@@ -74,9 +74,6 @@ public class CheckOutActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progress);
 
 
-
-
-
         //countryList = findViewById(R.id.countryList);
 
         //countryList.setSelected(true);

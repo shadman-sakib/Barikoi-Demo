@@ -16,7 +16,9 @@ class CustomMapBehaviour(context: Context, attrs: AttributeSet) :
         dependency: View
     ): Boolean {
         return dependency.id != R.id.fab &&
-                dependency.id != R.id.autocompletepane
+                dependency.id != R.id.autocompletepane &&
+                dependency.id != R.id.layoutTop &&
+                dependency.id != R.id.bottomsheet_navigation
 
 
     }

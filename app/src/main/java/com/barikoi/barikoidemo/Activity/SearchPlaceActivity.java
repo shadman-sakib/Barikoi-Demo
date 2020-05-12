@@ -44,6 +44,7 @@ import com.android.volley.toolbox.StringRequest;
 
 import com.barikoi.barikoidemo.Model.RequestQueueSingleton;
 import com.barikoi.barikoidemo.Task.JsonUtilsTask;
+import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -74,13 +75,14 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
     TextView tvRecentSearch;
     EditText editText;
     ProgressBar progressBar;
+    FirebaseAnalytics firebaseAnalytics;
     //FirebaseAnalytics mFirebaseaAnalytics;
     private TextView addplace,couldntfind;
     private LinearLayout searchdeeplayout;
     private TextView searchdeep;
     private String suggestText, params;
     private TextView textV;
-    private String Lat, Lon;
+    private String Lat, Lon, fromInput, key;
     private CheckBox locationChecked;
     //PlaceTask placeTask;
 
@@ -93,6 +95,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
         // handledearch(getIntent());
         //mFirebaseaAnalytics=FirebaseAnalytics.getInstance(this);
         //GetSavedPlace();
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
         progressBar=findViewById(R.id.progressBarSearchPlace);
         progressBar.setVisibility(View.GONE);
         locationChecked = findViewById(R.id.locationChecked);
@@ -116,6 +119,10 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
 //        }
         Lat = String.valueOf(getIntent().getDoubleExtra("lat", 1));
         Lon = String.valueOf(getIntent().getDoubleExtra("lng", 1));
+        key = getIntent().getStringExtra("key");
+        //fromInput = getIntent().getStringExtra("input");
+
+        Log.d("Search", "LatLng: " +Lat+ ", " +Lon);
 
         editText.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -180,10 +187,14 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
                 textV = findViewById(R.id.tvSuggestions);
 
                 String key = getIntent().getStringExtra("key");
-                Log.d("Search", key);
+                //Log.d("Search", key);
                 if (key.equals("mainactivity") && !key.equals("null")){
                     textV.setVisibility(View.GONE);
-                }else {
+                }
+                else if (key.equals("navigationActivity") && !key.equals("null")){
+                    textV.setVisibility(View.GONE);
+                }
+                else {
                     textV.setVisibility(View.VISIBLE);
                     textV.setText(suggestText);
                     textV.setOnClickListener(new View.OnClickListener() {
@@ -191,7 +202,6 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
                         public void onClick(View view) {
 
                             //ReturnPlace(Place);
-
                             Intent returnIntent = new Intent();
                             returnIntent.putExtra("suggestions",textV.getText().toString().trim());
                             setResult(Activity.RESULT_OK,returnIntent);
@@ -319,6 +329,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
                     Api.INSTANCE.getSearchUrl()+ params,
                     (String response) -> {
                         //loading.setVisibility(View.GONE);
+                        //Log.d("Search", "response: " +response);
 
                         progressBar.setVisibility(View.GONE);
                         editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,R.drawable.ic_close,0);
@@ -578,13 +589,35 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
     public void ReturnPlace(Place mItem){
         Intent returnIntent= new Intent();
 
-        if(getCallingActivity()!=null){
-            returnIntent = new Intent();
-            returnIntent.putExtra("result",mItem);
-            setResult(Activity.RESULT_OK,returnIntent);
-            finish();
-        }
+        Log.d("Navigation", "search: " +key);
+        Log.d("Navigation", "source: " +getIntent().hasExtra("SOURCE"));
+        Log.d("Navigation", "dest: " +getIntent().hasExtra("DESTINATION"));
 
+        if(getCallingActivity()!=null){
+
+            if(getIntent().hasExtra("SOURCE")){
+                Log.d("Navigation", "source");
+                returnIntent = new Intent();
+                returnIntent.putExtra("result",mItem);
+                returnIntent.putExtra("RSOURCE", 1);
+                setResult(Activity.RESULT_OK,returnIntent);
+                finish();
+            }
+            else if(getIntent().hasExtra("DESTINATION")){
+                Log.d("Navigation", "destination");
+                returnIntent = new Intent();
+                returnIntent.putExtra("result",mItem);
+                returnIntent.putExtra("RDESTINATION", 1);
+                setResult(Activity.RESULT_OK,returnIntent);
+                finish();
+            }
+            else {
+                returnIntent = new Intent();
+                returnIntent.putExtra("result",mItem);
+                setResult(Activity.RESULT_OK,returnIntent);
+                finish();
+            }
+        }
         else{
             returnIntent = new Intent(this,CheckOutActivity.class);
             returnIntent.putExtra("result",mItem);

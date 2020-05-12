@@ -23,6 +23,7 @@
     <string name="Nearby_Place">Nearby Places</string>
     <string name="Nearby_Address">Nearby Addresses</string>
     <string name="CheckOut">Checkout Demo</string>
+    <string name="navigation">Navigation</string>
     <string name="Name">Name</string>
     <string name="Phone">Contact number</string>
     <string name="InputAddress">Enter address</string>
@@ -30,6 +31,12 @@
     <string name="City">City</string>
     <string name="PostCode">Post Code</string>
     <string name="Country">Country</string>
+    <string name="inputsource">Source Address</string>
+    <string name="inputdestination">Destination Address</string>
+    <string name="distance">Distance</string>
+    <string name="time">Time</string>
+    <string name="km">KM</string>
+    <string name="mins">mins</string>
 
     <string name="ok">ok</string>
     <string name="cancel">Cancel</string>

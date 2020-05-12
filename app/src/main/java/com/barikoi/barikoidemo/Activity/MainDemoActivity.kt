@@ -54,22 +54,25 @@ import com.barikoi.barikoidemo.Model.Place
 import com.barikoi.barikoidemo.Model.Type
 import com.barikoi.barikoidemo.Task.JsonUtilsTask
 import com.barikoi.barikoidemo.Adapter.PlaceListAdapter
+import com.barikoi.barikoidemo.Main2Activity
 import com.barikoi.barikoidemo.R
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.infideap.drawerbehavior.AdvanceDrawerLayout
-import com.mapbox.android.core.location.LocationEngineCallback
-import com.mapbox.android.core.location.LocationEngineResult
+import com.mapbox.android.core.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.Marker
 import com.mapbox.mapboxsdk.annotations.MarkerOptions
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.geometry.LatLngBounds
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
-import com.mapbox.mapboxsdk.location.modes.CameraMode
-import com.mapbox.mapboxsdk.location.modes.RenderMode
-import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.maps.MapView
+import com.mapbox.mapboxsdk.maps.Telemetry
+import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerOptions
+import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
+import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
 import com.shreyaspatil.material.navigationview.MaterialNavigationView
 import com.xiaoyi.action.Platform.initialize
 import kotlinx.android.synthetic.main.bottomsheet_addresslist.*
@@ -84,8 +87,8 @@ import java.lang.Exception
 import java.util.HashMap
 
 
-class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener {
-
+class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsListener,
+    LocationEngineListener {
 
     private var currentLat: Double? = null
     private var currentLng: Double? = null
@@ -94,13 +97,19 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     private var iconFactory: IconFactory?=null
     private var permissionsManager: PermissionsManager?=null
     private var map: MapboxMap?=null
+    private var mapView: MapView? = null
     private var mBottomSheetBehaviorplaceview: BottomSheetBehavior<View>?=null
     private var mBottomSheetBehaviorRupantor: BottomSheetBehavior<LinearLayout>?=null
     private var mBottomSheetBehaviorNearby: BottomSheetBehavior<LinearLayout>?=null
     private var mBottomSheetBehaviorAddress: BottomSheetBehavior<View>?=null
     var types= arrayOf("Bank","Education","Food","Fuel","Government","Healthcare","Hotel","Shop","Utility")
     private var nearbyadapter: PlaceListAdapter?=null
+    private var locationEngine: LocationEngine? = null
+    private var locationPlugin: LocationLayerPlugin? = null
+    private var originLocation: Location? = null
     //private lateinit var appBarConfiguration: AppBarConfiguration
+
+    private var firebaseAnalytics: FirebaseAnalytics? = null
 
     private val requestCode = 555
     val GHURBOKOI = 23
@@ -119,10 +128,17 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     @SuppressLint("InvalidWakeLockTag")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         setContentView(R.layout.activity_main_demo)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+
+        Telemetry.disableOnUserRequest()
+        mapView = findViewById(R.id.mapView)
+        mapView!!.onCreate(savedInstanceState)
+        mapView!!.getMapAsync(this)
 
         val drawerLayout: AdvanceDrawerLayout = findViewById(R.id.drawer_layout)
         val toggle = ActionBarDrawerToggle(
@@ -153,6 +169,12 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                     intent.putExtra("lat",currentLat)
                     intent.putExtra("lng",currentLng)
                     startActivity(intent)}
+                R.id.nav_navigation -> {val intent = Intent(this@MainDemoActivity, NavigationActivity::class.java)
+                    Log.d(TAG, "Current Location: " + currentLat + "," +currentLng)
+                    intent.putExtra("location",currentlocation.toString())
+                    intent.putExtra("lat",currentLat)
+                    intent.putExtra("lng",currentLng)
+                    startActivity(intent)}
             }
             drawerLayout.closeDrawer(GravityCompat.START)
 
@@ -168,8 +190,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
         */
 
-        mapView.onCreate(savedInstanceState)
-        mapView.getMapAsync(this)
+
         initViews()
         initSearchautocomplete()
         //checkOptimization()
@@ -212,122 +233,143 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 //
 //    }
 
-    @SuppressLint( "InvalidWakeLockTag", "WakelockTimeout")
-    private fun checkOptimization() {
-       var tag = "com.barikoi.barikoidemo:LOCK"
-
-        Log.d(TAG, "Huawei: " +Build.VERSION.SDK_INT)
-        Log.d(TAG, "Huawei: " +Build.MANUFACTURER)
-
-        if (Build.VERSION.SDK_INT >= 21 && Build.MANUFACTURER == "HUAWEI") {
-            tag = "LocationManagerService"
-            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-
-        Log.d(TAG, "Huawei: " +tag)
-
-//        val wakeLock = (getSystemService(Context.POWER_SERVICE) as PowerManager).newWakeLock(
-//            1, tag)
-//        Log.d(TAG, "WakeLog: " +wakeLock.toString())
-
-//        wakeLock.acquire()
-//        Log.d(TAG, "WakeLog: " +wakeLock.acquire().toString())
-
-
-//        val wakeLock: PowerManager.WakeLock =
-//            (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-//                newWakeLock(1, tag).apply {
-//                    acquire()
-//                }
-//            }
-//
-//        Log.d(TAG, "WakeLog: " +wakeLock.toString())
-
-
-    }
-
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         Log.d(TAG,"map ready")
         map = mapboxMap
 
-        mapboxMap.setStyle(Style.Builder().fromUrl(getString(R.string.map_view_styleUrl))) {
+//        mapboxMap.setStyle(Style.Builder().fromUrl(getString(R.string.map_view_styleUrl))) {
+//
+//            // Custom map style has been loaded and map is now ready
+//            enableLocationComponent()
+//
+//        }
 
-            // Custom map style has been loaded and map is now ready
-            enableLocationComponent()
-
-        }
+        mapView!!.setStyleUrl(getString(R.string.map_view_styleUrl))
+        enableLocation()
 
 //        mapboxMap.setStyle(Style.MAPBOX_STREETS) {
 //            enableLocationComponent()
 //
 //        }
 
+        fab.setOnClickListener {
+            if (locationEngine != null) {
+                @SuppressLint("MissingPermission")
+                val lastLocation = locationEngine!!.lastLocation
+                if (lastLocation != null) {
+                    originLocation = lastLocation
+                    setCameraPosition(LatLng(originLocation!!.latitude, originLocation!!.longitude), 17.0)
+                } else {
+                    locationEngine!!.requestLocationUpdates()
+                }
+            } else {
+                enableLocation()
+            }
+        }
+
+    }
+    private fun enableLocation() {
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+            // Create an instance of LOST location engine
+            initializeLocationEngine()
+        } else {
+            permissionsManager = PermissionsManager(this)
+            permissionsManager!!.requestLocationPermissions(this)
+        }
+    }
+
+    private fun initializeLocationEngine() {
+        val locationEngineProvider = LocationEngineProvider(this)
+        locationEngine = locationEngineProvider.obtainBestLocationEngineAvailable()
+        locationEngine!!.priority = LocationEnginePriority.HIGH_ACCURACY
+        locationEngine!!.activate()
+        if (locationPlugin == null) {
+            locationPlugin = LocationLayerPlugin(mapView!!, map!!, locationEngine, LocationLayerOptions.builder(this).maxZoom(25.0).build())
+            locationPlugin!!.renderMode = RenderMode.COMPASS
+        }
+        // currentLocation.displayLocation();
+        val lastLocation = locationEngine!!.lastLocation
+        if (lastLocation != null) {
+            originLocation = lastLocation
+            currentLat = lastLocation!!.latitude
+            currentLng = lastLocation!!.longitude
+            setCameraPosition(LatLng(lastLocation.latitude, lastLocation.longitude), 17.0)
+            locationEngine!!.removeLocationUpdates()
+        } else {
+            locationEngine!!.addLocationEngineListener(this)
+        }
+
+    }
+
+    private fun setCameraPosition(location: LatLng, zoom: Double) {
+        map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(
+            LatLng(location.latitude, location.longitude), zoom))
     }
 
     /**
      * This function checks for location permission, if granted initializes location plugin
      */
-    @SuppressWarnings("MissingPermission")
-    private fun enableLocationComponent() {
-
-        // Check if permissions are enabled and if not request
-        if (PermissionsManager.areLocationPermissionsGranted(this)) {
-
-            // Get an instance of the component
-            val locationComponent = map?.locationComponent
-
-            // Activate with a built LocationComponentActivationOptions object
-            locationComponent?.activateLocationComponent(LocationComponentActivationOptions.builder(this, map!!.style!!).build())
-
-            // Enable to make component visible
-            locationComponent?.isLocationComponentEnabled = true
-
-            // Set the component's camera mode
-            locationComponent?.cameraMode = CameraMode.TRACKING
-
-            // Set the component's render mode
-            locationComponent?.renderMode = RenderMode.COMPASS
-            locationComponent?.locationEngine?.getLastLocation(object : LocationEngineCallback<LocationEngineResult>{
-                override fun onSuccess(result: LocationEngineResult?) {
-
-                    currentlocation=result?.lastLocation
-
-                    currentLat = result?.lastLocation!!.latitude
-                    currentLng = result.lastLocation!!.longitude
-                    map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(result?.lastLocation!!.latitude,result.lastLocation!!.longitude),17.0))
-
-                    //Log.d(TAG,"Map: " +map.toString())
-                }
-
-                override fun onFailure(exception: Exception) {
-
-                }
-
-            })
-            fab.setOnClickListener {
-                locationComponent?.locationEngine?.getLastLocation(object : LocationEngineCallback<LocationEngineResult>{
-                    override fun onSuccess(result: LocationEngineResult?) {
-                        map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(result?.lastLocation!!.latitude,result.lastLocation!!.longitude),17.0))
-
-                    }
-
-                    override fun onFailure(exception: Exception) {
-
-                    }
-
-                })
-            }
-
-        } else {
-            Log.d(TAG,"location permission not granted")
-            permissionsManager = PermissionsManager(this)
-
-            permissionsManager?.requestLocationPermissions(this)
-
-        }
-
-    }
+//    @SuppressWarnings("MissingPermission")
+//    private fun enableLocationComponent() {
+//
+//        // Check if permissions are enabled and if not request
+//        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+//
+//            // Get an instance of the component
+//            val locationComponent = map?.locationComponent
+//
+//            // Activate with a built LocationComponentActivationOptions object
+//            locationComponent?.activateLocationComponent(LocationComponentActivationOptions.builder(this, map!!.style!!).build())
+//
+//            // Enable to make component visible
+//            locationComponent?.isLocationComponentEnabled = true
+//
+//            // Set the component's camera mode
+//            locationComponent?.cameraMode = CameraMode.TRACKING
+//
+//            // Set the component's render mode
+//            locationComponent?.renderMode = RenderMode.COMPASS
+//            locationComponent?.locationEngine?.getLastLocation(object : LocationEngineCallback<LocationEngineResult>{
+//                override fun onSuccess(result: LocationEngineResult?) {
+//
+//                    currentlocation=result?.lastLocation
+//
+//                    currentLat = result?.lastLocation!!.latitude
+//                    currentLng = result.lastLocation!!.longitude
+//                    map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(result?.lastLocation!!.latitude,result.lastLocation!!.longitude),17.0))
+//
+//                    //Log.d(TAG,"Map: " +map.toString())
+//                }
+//
+//                override fun onFailure(exception: Exception) {
+//
+//                }
+//
+//            })
+//            fab.setOnClickListener {
+//                locationComponent?.locationEngine?.getLastLocation(object : LocationEngineCallback<LocationEngineResult>{
+//                    override fun onSuccess(result: LocationEngineResult?) {
+//                        map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(result?.lastLocation!!.latitude,result.lastLocation!!.longitude),17.0))
+//
+//                    }
+//
+//                    override fun onFailure(exception: Exception) {
+//
+//                    }
+//
+//                })
+//            }
+//
+//        } else {
+//            Log.d(TAG,"location permission not granted")
+//            permissionsManager = PermissionsManager(this)
+//
+//            permissionsManager?.requestLocationPermissions(this)
+//
+//        }
+//
+//    }
 
    
 
@@ -347,7 +389,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
         nearbyadapter= PlaceListAdapter(ArrayList<NearbyPlace>(), object : PlaceListAdapter.OnPlaceItemSelectListener {
                 override fun onPlaceItemSelected(mItem: NearbyPlace?, position: Int) {
-                    placemarkermap?.get(mItem!!.code)?.showInfoWindow(map!!, mapView)
+                    placemarkermap?.get(mItem!!.code)?.showInfoWindow(map!!, mapView!!)
                 }
             })
         nearbylistview.layoutManager=LinearLayoutManager(this)
@@ -555,33 +597,54 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
         Log.d(TAG, "Type: " +type)
 
-        map?.locationComponent!!.locationEngine?.getLastLocation(object :LocationEngineCallback<LocationEngineResult>{
-            override fun onSuccess(result: LocationEngineResult?) {
-                NearbyPlaceAPI.builder(this@MainDemoActivity)
-                    .setDistance(2.0)
-                    .setLimit(5)
-                    .setType(type)
-                    .setLatLng(result?.lastLocation!!.latitude,result.lastLocation!!.longitude)
-                    .build()
-                    .generateNearbyPlaceListByType(object: NearbyPlaceListener{
-                        override fun onPlaceListReceived(places: java.util.ArrayList<NearbyPlace>?) {
-                            plotmarkers(places!!,result.lastLocation!!.latitude,result.lastLocation!!.longitude)
-                            nearbyadapter?.setplaces(places)
-                        }
-                        override fun onFailure(message: String?) {
-                            Toast.makeText(applicationContext,"No nearby place found",Toast.LENGTH_SHORT).show()
-                        }
 
-                    })
-                mBottomSheetBehaviorNearby!!.state=BottomSheetBehavior.STATE_COLLAPSED
-                //mBottomSheetBehaviorNearby!!.isHideable=false
-            }
+        NearbyPlaceAPI.builder(this@MainDemoActivity)
+            .setDistance(2.0)
+            .setLimit(5)
+            .setType(type)
+            .setLatLng(originLocation!!.latitude,originLocation!!.longitude)
+            .build()
+            .generateNearbyPlaceListByType(object: NearbyPlaceListener{
+                override fun onPlaceListReceived(places: java.util.ArrayList<NearbyPlace>?) {
+                    plotmarkers(places!!,originLocation!!.latitude,originLocation!!.longitude)
+                    nearbyadapter?.setplaces(places)
+                }
+                override fun onFailure(message: String?) {
+                    Toast.makeText(applicationContext,"No nearby place found",Toast.LENGTH_SHORT).show()
+                }
 
-            override fun onFailure(exception: Exception) {
-                Toast.makeText(applicationContext,"could not get location",Toast.LENGTH_SHORT).show()
-            }
+            })
+        mBottomSheetBehaviorNearby!!.state=BottomSheetBehavior.STATE_COLLAPSED
 
-        })
+        //mBottomSheetBehaviorNearby!!.isHideable=false
+
+//        map?.locationComponent!!.locationEngine?.getLastLocation(object :LocationEngineCallback<LocationEngineResult>{
+//            override fun onSuccess(result: LocationEngineResult?) {
+//                NearbyPlaceAPI.builder(this@MainDemoActivity)
+//                    .setDistance(2.0)
+//                    .setLimit(5)
+//                    .setType(type)
+//                    .setLatLng(result?.lastLocation!!.latitude,result.lastLocation!!.longitude)
+//                    .build()
+//                    .generateNearbyPlaceListByType(object: NearbyPlaceListener{
+//                        override fun onPlaceListReceived(places: java.util.ArrayList<NearbyPlace>?) {
+//                            plotmarkers(places!!,result.lastLocation!!.latitude,result.lastLocation!!.longitude)
+//                            nearbyadapter?.setplaces(places)
+//                        }
+//                        override fun onFailure(message: String?) {
+//                            Toast.makeText(applicationContext,"No nearby place found",Toast.LENGTH_SHORT).show()
+//                        }
+//
+//                    })
+//                mBottomSheetBehaviorNearby!!.state=BottomSheetBehavior.STATE_COLLAPSED
+//                //mBottomSheetBehaviorNearby!!.isHideable=false
+//            }
+//
+//            override fun onFailure(exception: Exception) {
+//                Toast.makeText(applicationContext,"could not get location",Toast.LENGTH_SHORT).show()
+//            }
+//
+//        })
     }
 
     private fun initRupantor() {
@@ -1023,6 +1086,23 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         super.onStop()
     }
 
+    @SuppressLint("MissingPermission")
+    override fun onConnected() {
+        locationEngine!!.requestLocationUpdates()
+
+    }
+    @SuppressLint("MissingPermission")
+    override fun onLocationChanged(location: Location?) {
+        Log.d("OnLoc", "Onlocchanged")
+        if (location != null) {
+            originLocation = location
+            setCameraPosition(LatLng(location.latitude, location.longitude), 17.0)
+            if (map != null) /*IntentDataCheck()*/
+            locationEngine!!.removeLocationEngineListener(this)
+        } else {
+            locationEngine!!.requestLocationUpdates()
+        }
+    }
     override fun onDestroy() {
 
         mapView!!.onDestroy()
@@ -1050,7 +1130,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     }
 
     override fun onPermissionResult(granted: Boolean) {
-        enableLocationComponent()
+        //enableLocationComponent()
+        enableLocation()
     }
 
     override fun onExplanationNeeded(permissionsToExplain: MutableList<String>?) {
@@ -1068,7 +1149,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
 
         } else {
-            enableLocationComponent()
+            //enableLocationComponent()
+            enableLocation()
         }
 
     }
