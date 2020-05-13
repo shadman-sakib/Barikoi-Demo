@@ -39,7 +39,6 @@ import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
-import com.mapbox.mapboxsdk.constants.Style;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -52,7 +51,6 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
-import com.mapbox.services.android.navigation.ui.v5.route.OnRouteSelectionChangeListener;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
 import java.math.RoundingMode;
@@ -66,7 +64,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class NavigationActivity extends AppCompatActivity implements OnMapReadyCallback,
+public class RouteNavigationActivity extends AppCompatActivity implements OnMapReadyCallback,
         PermissionsListener, LocationEngineListener {
 
     EditText etInputSource, etInputDestination;
@@ -103,16 +101,16 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Mapbox.getInstance(NavigationActivity.this, getString(R.string.mapbox_access_token));
-        setContentView(R.layout.activity_navigation);
+        Mapbox.getInstance(RouteNavigationActivity.this, getString(R.string.mapbox_access_token));
+        setContentView(R.layout.activity_route_navigation);
 
         firebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         Telemetry.disableOnUserRequest();
-        mapView = findViewById(R.id.mapview2);
+        mapView = findViewById(R.id.mapview);
+        mapView.setStyleUrl(getString(R.string.map_view_styleUrl));
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-        mapView.setStyleUrl(getString(R.string.map_view_styleUrl));
 
 
         nestedScrollView = findViewById(R.id.bottomsheet_navigation);
@@ -139,7 +137,9 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
             @Override
             public void onClick(View view) {
                 ClearMap();
-                onBackPressed();
+                //onBackPressed();
+                Intent intent = new Intent(RouteNavigationActivity.this, MainDemoActivity.class);
+                startActivity(intent);
 
             }
         });
@@ -152,7 +152,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 
                 if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
 
-                    Intent intent = new Intent(NavigationActivity.this, SearchPlaceActivity.class);
+                    Intent intent = new Intent(RouteNavigationActivity.this, SearchPlaceActivity.class);
                     intent.putExtra("key", "navigationActivity");
                     //intent.putExtra("input", "source");
                     intent.putExtra("lat", getLat);
@@ -171,7 +171,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 
                 if(motionEvent.getAction() == MotionEvent.ACTION_UP) {
 
-                    Intent intent = new Intent(NavigationActivity.this, SearchPlaceActivity.class);
+                    Intent intent = new Intent(RouteNavigationActivity.this, SearchPlaceActivity.class);
                     intent.putExtra("key", "navigationActivity");
                     //intent.putExtra("input", "destination");
                     intent.putExtra("lat",getLat);
@@ -213,22 +213,6 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 //                }
 //            }
 //        });
-//        mMap.setStyle(Style.MAPBOX_STREETS, new Style.OnStyleLoaded() {
-//            @Override
-//            public void onStyleLoaded(@NonNull Style style2) {
-//                style = style2;
-//                enableLocationComponent();
-//
-//            }
-//        });
-//        mMap.setStyle(new Style.Builder().fromUrl(getString(R.string.map_view_styleUrl)), new Style.OnStyleLoaded() {
-//            @Override
-//            public void onStyleLoaded(@NonNull Style style2) {
-//
-//                style = style2;
-//                enableLocationComponent();
-//            }
-//        });
         //mMap.setStyle(new Style.Builder().fromUrl(getString(R.string.map_view_styleUrl)));
         //enableLocationComponent();
 
@@ -260,7 +244,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
             setCameraPosition(new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()), 17.0);
             locationEngine.removeLocationUpdates();
         } else {
-            locationEngine.addLocationEngineListener(NavigationActivity.this);
+            locationEngine.addLocationEngineListener(RouteNavigationActivity.this);
         }
 
     }
@@ -294,70 +278,11 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
         }
     };
 
-//    @SuppressWarnings( {"MissingPermission"})
-//    private void enableLocationComponent() {
-//
-//        // Check if permissions are enabled and if not request
-//        if (PermissionsManager.areLocationPermissionsGranted(this)) {
-//
-//            // Get an instance of the component
-//            LocationComponent locationComponent = mMap.getLocationComponent();
-//
-//            // Activate with a built LocationComponentActivationOptions object
-//            locationComponent.activateLocationComponent(LocationComponentActivationOptions.builder(this, style).build());
-//
-//            // Enable to make component visible
-//            locationComponent.setLocationComponentEnabled(true);
-//
-//            // Set the component's camera mode
-//            locationComponent.setCameraMode(CameraMode.TRACKING);
-//
-//            // Set the component's render mode
-//            locationComponent.setRenderMode(RenderMode.COMPASS);
-//            locationComponent.getLocationEngine().getLastLocation(new LocationEngineCallback<LocationEngineResult>() {
-//                @Override
-//                public void onSuccess(LocationEngineResult result) {
-//
-//                    currentLat = result.getLastLocation().getLatitude();
-//                    currentLon = result.getLastLocation().getLongitude();
-//
-//                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(currentLat, currentLon),17.0));
-//
-//                }
-//
-//                @Override
-//                public void onFailure(@NonNull Exception exception) {
-//
-//                }
-//            });
-//
-////            fab.setOnClickListener {
-////                locationComponent?.locationEngine?.getLastLocation(object : LocationEngineCallback<LocationEngineResult>{
-////                    override fun onSuccess(result: LocationEngineResult?) {
-////                        map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(result?.lastLocation!!.latitude,result.lastLocation!!.longitude),17.0))
-////
-////                    }
-////
-////                    override fun onFailure(exception: Exception) {
-////
-////                    }
-////
-////                })
-////            }
-//
-//        } else {
-//
-//            permissionsManager = new PermissionsManager(this);
-//
-//            permissionsManager.requestLocationPermissions(this);
-//
-//        }
-//    }
 
     public void init() {
 
 
-        ReverseGeoAPI.builder(NavigationActivity.this)
+        ReverseGeoAPI.builder(RouteNavigationActivity.this)
                 .setLatLng(getLat, getLng)
                 .build()
                 .getAddress(reverseGeoAPIListener = new ReverseGeoAPIListener() {
@@ -368,7 +293,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 
                     @Override
                     public void onFailure(String message) {
-                        Toast.makeText(NavigationActivity.this, message, Toast.LENGTH_LONG).show();
+                        Toast.makeText(RouteNavigationActivity.this, message, Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -414,6 +339,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 
                 if (data.hasExtra("RSOURCE")){
                     etInputSource.setText(place.toString());
+                    Log.d(TAG, "Source place: " +place.getLat() + ", " +place.getLon());
                     if(place.getLat() != null && place.getLon() != null) {
                         sourceLat = Double.valueOf(place.getLat());
                         sourceLon = Double.valueOf(place.getLon());
@@ -427,6 +353,7 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                 }
                 else if(data.hasExtra("RDESTINATION")){
                     etInputDestination.setText(place.toString());
+                    Log.d(TAG, "Dest place: " +place.getLat() + ", " +place.getLon());
                     if(place.getLat() != null && place.getLon() != null) {
                         destLat = Double.valueOf(place.getLat());
                         destLon = Double.valueOf(place.getLon());
@@ -511,6 +438,8 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 //                .origin(origin)
 //                .destination(destination);
 
+        buttonStartNavigation.setVisibility(View.VISIBLE);
+
         navroute = NavigationRoute.builder(this)
                 .accessToken("pk." + getString(R.string.gh_key))
                 .baseUrl(getString(R.string.base_url))
@@ -525,8 +454,8 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 
                 try {
 
-                Log.d(TAG, "Response raw: " + response.raw().toString());
-                Log.d(TAG, "Response body: " + response.body());
+//                Log.d(TAG, "Response raw: " + response.raw().toString());
+//                Log.d(TAG, "Response body: " + response.body());
                 if (response.body() == null) {
                     Log.e(TAG, "No routes found, make sure you set the right user and access token.");
 
@@ -565,22 +494,22 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
                         navigationMapRoute.addRoute(currentRoute);
                         mMap.animateCamera(CameraUpdateFactory.zoomOut());
 
-//                        buttonStartNavigation.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                try {
-//                                    Boolean simulateRoute = false;
-//                                    NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-//                                            .directionsRoute(currentRoute)
-//                                            .shouldSimulateRoute(simulateRoute)
-//                                            .build();
-//                                    // Call this method with Context from within an Activity
-//                                    NavigationLauncher.startNavigation(NavigationActivity.this, options);
-//                                } catch (Exception e) {
-//                                    e.printStackTrace();
-//                                }
-//                            }
-//                        });
+                        buttonStartNavigation.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                try {
+                                    Boolean simulateRoute = false;
+                                    NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                                            .directionsRoute(currentRoute)
+                                            .shouldSimulateRoute(simulateRoute)
+                                            .build();
+                                    // Call this method with Context from within an Activity
+                                    NavigationLauncher.startNavigation(RouteNavigationActivity.this, options);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
                     }
 
                 }catch (Exception e){
@@ -607,6 +536,17 @@ public class NavigationActivity extends AppCompatActivity implements OnMapReadyC
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mapView.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mapView.onStop();
+    }
 
     @Override
     public void onResume() {

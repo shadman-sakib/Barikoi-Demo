@@ -22,7 +22,7 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name=".Main2Activity"></activity>
         <activity
-            android:name=".Activity.NavigationActivity"
+            android:name=".Activity.RouteNavigationActivity"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden">
 

@@ -6,18 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.PowerManager
-import android.os.PowerManager.*
-import android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
 import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import barikoi.barikoilocation.PlaceModels.GeoCodePlace
-import barikoi.barikoilocation.SearchAutoComplete.SearchAutocompleteFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
@@ -28,7 +22,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -54,7 +47,6 @@ import com.barikoi.barikoidemo.Model.Place
 import com.barikoi.barikoidemo.Model.Type
 import com.barikoi.barikoidemo.Task.JsonUtilsTask
 import com.barikoi.barikoidemo.Adapter.PlaceListAdapter
-import com.barikoi.barikoidemo.Main2Activity
 import com.barikoi.barikoidemo.R
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.infideap.drawerbehavior.AdvanceDrawerLayout
@@ -74,7 +66,6 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerOptions
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
 import com.shreyaspatil.material.navigationview.MaterialNavigationView
-import com.xiaoyi.action.Platform.initialize
 import kotlinx.android.synthetic.main.bottomsheet_addresslist.*
 import kotlinx.android.synthetic.main.bottomsheet_nearbylist.*
 import kotlinx.android.synthetic.main.bottomsheet_placeview.textview_address
@@ -83,7 +74,6 @@ import kotlinx.android.synthetic.main.bottomsheet_rupantor.*
 import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
-import java.lang.Exception
 import java.util.HashMap
 
 
@@ -128,15 +118,16 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     @SuppressLint("InvalidWakeLockTag")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        //Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
+        Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         setContentView(R.layout.activity_main_demo)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+
 
         Telemetry.disableOnUserRequest()
         mapView = findViewById(R.id.mapView)
+        mapView!!.setStyleUrl(getString(R.string.map_view_styleUrl))
         mapView!!.onCreate(savedInstanceState)
         mapView!!.getMapAsync(this)
 
@@ -169,7 +160,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                     intent.putExtra("lat",currentLat)
                     intent.putExtra("lng",currentLng)
                     startActivity(intent)}
-                R.id.nav_navigation -> {val intent = Intent(this@MainDemoActivity, NavigationActivity::class.java)
+                R.id.nav_navigation -> {val intent = Intent(this@MainDemoActivity, RouteNavigationActivity::class.java)
                     Log.d(TAG, "Current Location: " + currentLat + "," +currentLng)
                     intent.putExtra("location",currentlocation.toString())
                     intent.putExtra("lat",currentLat)
@@ -194,6 +185,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         initViews()
         initSearchautocomplete()
         //checkOptimization()
+
+        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
 
 
@@ -245,7 +238,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 //
 //        }
 
-        mapView!!.setStyleUrl(getString(R.string.map_view_styleUrl))
+        //mapView!!.setStyleUrl(getString(R.string.map_view_styleUrl))
         enableLocation()
 
 //        mapboxMap.setStyle(Style.MAPBOX_STREETS) {

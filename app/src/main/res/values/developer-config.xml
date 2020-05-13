@@ -7,11 +7,17 @@
     <!-- This is the endpoint for the routing API, please note this endpoint might change in the future, please contact GraphHopper if you want to publish an app using this endpoint-->
     <string name="base_url" translatable="false">https://graphhopper.com/api/1/navigate/</string>
 
-    <!-- These are the map style urls, you can get a key at mapilion.com -->
-    <!-- The style used for regular map viewing and route planning -->
-    <string name="map_view_styleUrl" translatable="false">https://map.barikoi.com/styles/osm-bright/style.json</string>
+<!--    &lt;!&ndash; These are the map style urls, you can get a key at mapilion.com &ndash;&gt;-->
+<!--    &lt;!&ndash; The style used for regular map viewing and route planning &ndash;&gt;-->
+<!--    <string name="map_view_styleUrl">https://map.barikoi.com/styles/osm-bright/style.json</string>-->
+<!--    &lt;!&ndash; The "day" style used for navigation &ndash;&gt;-->
+<!--    <string name="navigation_guidance_day" translatable="false">https://map.barikoi.com/styles/osm-bright/style.json</string>-->
+<!--    &lt;!&ndash; The "night" style used for navigation &ndash;&gt;-->
+<!--    <string name="navigation_guidance_night" translatable="false">https://map.barikoi.com/styles/osm-bright/style.json</string>-->
+
+    <string name="map_view_styleUrl">https://map.barikoi.com/styles/osm-liberty/style.json</string>
     <!-- The "day" style used for navigation -->
-    <string name="navigation_guidance_day" translatable="false">https://map.barikoi.com/styles/osm-bright/style.json</string>
+    <string name="navigation_guidance_day" translatable="false">https://map.barikoi.com/styles/osm-liberty/style.json</string>
     <!-- The "night" style used for navigation -->
-    <string name="navigation_guidance_night" translatable="false">https://map.barikoi.com/styles/osm-bright/style.json</string>
+    <string name="navigation_guidance_night" translatable="false">https://map.barikoi.com/styles/osm-liberty/style.json</string>
 </resources>

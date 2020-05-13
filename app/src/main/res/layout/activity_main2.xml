@@ -10,20 +10,16 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_behavior=".CustomMapBehaviour">
+            android:layout_height="match_parent">
 
-            <com.mapbox.mapboxsdk.maps.MapView
-                android:id="@+id/mapview"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                mapbox:mapbox_cameraZoom="12"
+           <Button
+               android:id="@+id/btn"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_centerInParent="true"
+               android:text="Home">
 
-                app:mapbox_uiAttribution="false"
-                app:mapbox_uiAttributionMarginLeft="5dp"
-                app:mapbox_uiLogo="false">
-
-            </com.mapbox.mapboxsdk.maps.MapView>
+           </Button>
         </RelativeLayout>
 
 
