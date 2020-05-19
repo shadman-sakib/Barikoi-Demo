@@ -559,7 +559,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                         MoreTypeView(true)
                     } else {
 
-                        nearbySerchType?.NearbySearchType(t, latitude, longitude)
+                        //nearbySerchType?.NearbySearchType(t, latitude, longitude)
+                        nearbySerchType?.NearbySearchType(t, currentLat!!, currentLng!!)
                         getnearby(t.name)
                     }
                 }

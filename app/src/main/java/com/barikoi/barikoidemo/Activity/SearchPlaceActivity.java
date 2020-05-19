@@ -32,6 +32,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -75,6 +76,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
     TextView tvRecentSearch;
     EditText editText;
     ProgressBar progressBar;
+    ImageView imageBack, imageClose;
     FirebaseAnalytics firebaseAnalytics;
     //FirebaseAnalytics mFirebaseaAnalytics;
     private TextView addplace,couldntfind;
@@ -96,6 +98,8 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
         //mFirebaseaAnalytics=FirebaseAnalytics.getInstance(this);
         //GetSavedPlace();
         firebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        imageBack = findViewById(R.id.imageBack);
+        imageClose = findViewById(R.id.imgClose);
         progressBar=findViewById(R.id.progressBarSearchPlace);
         progressBar.setVisibility(View.GONE);
         locationChecked = findViewById(R.id.locationChecked);
@@ -123,29 +127,44 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
         //fromInput = getIntent().getStringExtra("input");
 
         Log.d("Search", "LatLng: " +Lat+ ", " +Lon);
-
-        editText.setOnTouchListener(new View.OnTouchListener() {
+        imageBack.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                final int DRAWABLE_RIGHT = 2;
-                final int DRAWABLE_LEFT = 0;
-                if(event.getAction() == MotionEvent.ACTION_UP && progressBar.getVisibility()!=View.VISIBLE) {
-                    if(editText.getCompoundDrawables()[DRAWABLE_RIGHT]!=null)
-                        if(event.getRawX() >= (editText.getRight() - editText.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                            editText.setText("");
-                            items.clear();
-                            placeAdapter.notifyDataSetChanged();
-                            return true;
-                        }
-                }
-
-                if(event.getRawX() <= (editText.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
-                    onBackPressed();
-                    return true;
-                }
-                return false;
+            public void onClick(View view) {
+                onBackPressed();
             }
         });
+
+        imageClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                editText.setText("");
+                items.clear();
+                placeAdapter.notifyDataSetChanged();
+            }
+        });
+
+//        editText.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                final int DRAWABLE_RIGHT = 2;
+//                final int DRAWABLE_LEFT = 0;
+//                if(event.getAction() == MotionEvent.ACTION_UP && progressBar.getVisibility()!=View.VISIBLE) {
+//                    if(editText.getCompoundDrawables()[DRAWABLE_RIGHT]!=null)
+//                        if(event.getRawX() >= (editText.getRight() - editText.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+//                            editText.setText("");
+//                            items.clear();
+//                            placeAdapter.notifyDataSetChanged();
+//                            return true;
+//                        }
+//                }
+//
+//                if(event.getRawX() <= (editText.getCompoundDrawables()[DRAWABLE_LEFT].getBounds().width())) {
+//                    onBackPressed();
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
 
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -157,12 +176,14 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
                 listView.emptyshow(false);
-                editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,0,0);
+                //editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,0,0);
                 if(charSequence.length()>=2){
                     //linearLayout.setVisibility(View.GONE);
                     queue.cancelAll("search");
                     mHandler.removeMessages(MESSAGE_TEXT_CHANGED);
-                    editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,0,0);
+                    //editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,0,0);
+                    imageBack.setVisibility(View.VISIBLE);
+                    imageClose.setVisibility(View.GONE);
                     final Message msg = Message.obtain(mHandler, MESSAGE_TEXT_CHANGED, charSequence.toString());
                     mHandler.sendMessageDelayed(msg, AUTOCOMPLETE_DELAY);
                     //
@@ -170,7 +191,9 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
                 else {
                     //linearLayout.setVisibility(View.VISIBLE);
                     progressBar.setVisibility(View.GONE);
-                    editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,R.drawable.ic_close,0);
+                    //editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,R.drawable.ic_close,0);
+                    imageBack.setVisibility(View.VISIBLE);
+                    imageClose.setVisibility(View.VISIBLE);
                     dropExtraActions();
                     mHandler.removeMessages(MESSAGE_TEXT_CHANGED);
                     queue.cancelAll("search");
@@ -321,7 +344,9 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
 
         //loading.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
-        editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,0,0);
+        //editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,0,0);
+        imageBack.setVisibility(View.VISIBLE);
+        imageClose.setVisibility(View.GONE);
         queue.cancelAll("search");
         items.clear();
         if (nameOrCode.length() > 0) {
@@ -332,7 +357,8 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
                         //Log.d("Search", "response: " +response);
 
                         progressBar.setVisibility(View.GONE);
-                        editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,R.drawable.ic_close,0);
+                        //editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,R.drawable.ic_close,0);
+                        imageClose.setVisibility(View.VISIBLE);
                         try {
                             JSONObject data = new JSONObject(response);
                             Log.d("search result",data.toString());
@@ -374,7 +400,8 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
                     error -> {
                         //loading.setVisibility(View.GONE);
                         progressBar.setVisibility(View.GONE);
-                        editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,R.drawable.ic_close,0);
+                        //editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,R.drawable.ic_close,0);
+                        imageClose.setVisibility(View.VISIBLE);
                         JsonUtils.logResponse(error);
                         listView.nonetshow(true);
                         //JsonUtils.handleResponse(error, SearchPlaceActivity.this);
@@ -397,6 +424,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
             request.setTag("search");
             //loading.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.VISIBLE);
+            imageClose.setVisibility(View.GONE);
             dropExtraActions();
             queue.add(request);
         }
@@ -405,7 +433,9 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
         Log.d("Rupantor",nameOrCode);
         //loading.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
-        editText.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
+        //editText.setCompoundDrawablesWithIntrinsicBounds(0,0,0,0);
+        imageClose.setVisibility(View.GONE);
+        imageBack.setVisibility(View.GONE);
         queue.cancelAll("search");
         items.clear();
         if (nameOrCode.length() > 0) {
@@ -415,7 +445,9 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
                         //loading.setVisibility(View.GONE);
 
                         progressBar.setVisibility(View.GONE);
-                        editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,R.drawable.ic_close,0);
+                        //editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,R.drawable.ic_close,0);
+                        imageClose.setVisibility(View.VISIBLE);
+                        imageBack.setVisibility(View.VISIBLE);
                         try {
                             JSONObject data = new JSONObject(response).getJSONObject("geocoded_address");
                             Log.d("search result",data.toString());
@@ -447,7 +479,9 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
                     error -> {
                         //loading.setVisibility(View.GONE);
                         progressBar.setVisibility(View.GONE);
-                        editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,R.drawable.ic_close,0);
+                        //editText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_back,0,R.drawable.ic_close,0);
+                        imageClose.setVisibility(View.VISIBLE);
+                        imageBack.setVisibility(View.VISIBLE);
                         JsonUtils.logResponse(error);
                         listView.nonetshow(true);
                         dropExtraActions();
@@ -475,6 +509,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
             request.setTag("search");
             //loading.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.VISIBLE);
+            imageClose.setVisibility(View.GONE);
             dropExtraActions();
             queue.add(request);
         }
