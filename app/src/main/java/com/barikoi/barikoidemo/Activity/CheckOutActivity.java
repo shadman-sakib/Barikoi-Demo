@@ -73,6 +73,11 @@ public class CheckOutActivity extends AppCompatActivity {
         confirm = findViewById(R.id.btn_confirm);
         progressBar = findViewById(R.id.progress);
 
+        getCurrentAddress = String.valueOf(getIntent().getSerializableExtra("location"));
+        getLat = getIntent().getDoubleExtra("lat", 1);
+        getLng = getIntent().getDoubleExtra("lng", 1);
+        Log.d(TAG, "getLat: " + getLat + " getLng: " + getLng);
+
 
         //countryList = findViewById(R.id.countryList);
 
@@ -92,6 +97,8 @@ public class CheckOutActivity extends AppCompatActivity {
                     etZipCode.setText("");
                     Intent intent = new Intent(CheckOutActivity.this, SearchPlaceActivity.class);
                     intent.putExtra("key", "checkoutactivity");
+                    intent.putExtra("lat",getLat);
+                    intent.putExtra("lng",getLng);
                     startActivityForResult(intent, requestCode);
 
                 }
@@ -103,6 +110,7 @@ public class CheckOutActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 if(event.getAction() == MotionEvent.ACTION_UP) {
                     final int DRAWABLE_RIGHT = 2;
+                    if (etInputAddress.getCompoundDrawables()[DRAWABLE_RIGHT]!=null)
                     if(event.getRawX() >= etInputAddress.getRight() - etInputAddress.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width()) {
                         // your action for drawable click event
 
@@ -112,10 +120,7 @@ public class CheckOutActivity extends AppCompatActivity {
                         etZipCode.setText("");
 
                         progressBar.setVisibility(View.VISIBLE);
-                        getCurrentAddress = String.valueOf(getIntent().getSerializableExtra("location"));
-                        getLat = getIntent().getDoubleExtra("lat", 1);
-                        getLng = getIntent().getDoubleExtra("lng", 1);
-                        Log.d(TAG, "getLat: " + getLat + " getLng: " + getLng);
+
                         ReverseGeoAPI.builder(CheckOutActivity.this)
                                 .setLatLng(getLat, getLng)
                                 .build()
