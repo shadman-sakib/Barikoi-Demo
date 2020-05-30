@@ -53,6 +53,7 @@ import com.infideap.drawerbehavior.AdvanceDrawerLayout
 import com.mapbox.android.core.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.annotations.IconFactory
 import com.mapbox.mapboxsdk.annotations.Marker
@@ -429,7 +430,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         clearmode()
         map_pointer.visibility= VISIBLE
         btn_addressList.visibility= VISIBLE
-        map?.addOnCameraIdleListener (maprevgeolistener2)
+        map?.addOnMoveListener (maprevgeolistener2)
 
         btn_addressList.setOnClickListener { v ->
             mBottomSheetBehaviorAddress!!.state =
@@ -450,9 +451,17 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         }
 
     }
-    val maprevgeolistener2= object: MapboxMap.OnCameraIdleListener {
-        override fun onCameraIdle() {
-            Log.d(TAG, "onCameraIdle")
+    val maprevgeolistener2 = object : MapboxMap.OnMoveListener{
+        override fun onMoveBegin(detector: MoveGestureDetector) {
+
+        }
+
+        override fun onMove(detector: MoveGestureDetector) {
+
+        }
+
+        override fun onMoveEnd(detector: MoveGestureDetector) {
+
             progress.visibility= VISIBLE
             ReverseGeoAPI.builder(this@MainDemoActivity)
                 .setLatLng(map?.cameraPosition!!.target.latitude,map?.cameraPosition!!.target.longitude)
@@ -478,8 +487,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 })
         }
 
-
     }
+
 
     private fun initNearby() {
         clearmode()
@@ -664,7 +673,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         /*add if needed*/
 //        mBottomSheetBehaviorplaceview!!.state=BottomSheetBehavior.STATE_EXPANDED
 //        mBottomSheetBehaviorplaceview!!.isHideable = false
-        map?.addOnCameraIdleListener (maprevgeolistener)
+        map?.addOnMoveListener (maprevgeolistener)
 
 //        val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
 //
@@ -687,9 +696,18 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 //        }
         //mBottomSheetBehaviorplaceview!!.setBottomSheetCallback(bottomSheetCallback)
     }
-    val maprevgeolistener= object: MapboxMap.OnCameraIdleListener {
-        override fun onCameraIdle() {
-            Log.d(TAG, "onCameraIdle")
+    val maprevgeolistener = object: MapboxMap.OnMoveListener{
+        override fun onMoveBegin(detector: MoveGestureDetector) {
+
+
+        }
+
+        override fun onMove(detector: MoveGestureDetector) {
+
+        }
+
+        override fun onMoveEnd(detector: MoveGestureDetector) {
+
             progress.visibility= VISIBLE
             ReverseGeoAPI.builder(this@MainDemoActivity)
                 .setLatLng(map?.cameraPosition!!.target.latitude,map?.cameraPosition!!.target.longitude)
@@ -720,7 +738,42 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
                 })
         }
+
     }
+//    val maprevgeolistener= object: MapboxMap.OnCameraIdleListener {
+//        override fun onCameraIdle() {
+//            Log.d(TAG, "onCameraIdle")
+//            progress.visibility= VISIBLE
+//            ReverseGeoAPI.builder(this@MainDemoActivity)
+//                .setLatLng(map?.cameraPosition!!.target.latitude,map?.cameraPosition!!.target.longitude)
+//                .build()
+//                .getAddress(object: ReverseGeoAPIListener {
+//                    override fun onFailure(message: String?) {
+//                        progress.visibility=GONE
+//                        Toast.makeText(applicationContext,message,Toast.LENGTH_LONG).show()
+//                    }
+//
+//                    override fun reversedAddress(place: ReverseGeoPlace?) {
+//                        Log.d(TAG, "reversedAddress")
+//                        progress.visibility=GONE
+//
+//                        editTextRev.setText(place?.address)
+//                        /*add if needed*/
+//                        //textview_address.text=place?.address
+//                        //textview_area.text=place?.area
+////                        btn_send.setOnClickListener {
+////                            val intent = Intent(this@MainDemoActivity, CheckOutActivity::class.java)
+////                            intent.putExtra("address", place.toString())
+////                            setResult(RESULT_OK,intent)
+////                            startActivityForResult(intent, requestCode)
+////                            finish()
+////                        }
+//
+//                    }
+//
+//                })
+//        }
+//    }
 
     private fun initsuggestionList(lat: Double, lon: Double) {
 
@@ -973,8 +1026,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         placemarkermap?.clear()
         map?.clear()
 
-        map?.removeOnCameraIdleListener(maprevgeolistener)
-        map?.removeOnCameraIdleListener(maprevgeolistener2)
+        map?.removeOnMoveListener(maprevgeolistener)
+        map?.removeOnMoveListener(maprevgeolistener2)
     }
 
     private fun initSearchautocomplete(){
