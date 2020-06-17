@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -48,6 +49,7 @@ import com.barikoi.barikoidemo.Model.Type
 import com.barikoi.barikoidemo.Task.JsonUtilsTask
 import com.barikoi.barikoidemo.Adapter.PlaceListAdapter
 import com.barikoi.barikoidemo.R
+
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.infideap.drawerbehavior.AdvanceDrawerLayout
 import com.mapbox.android.core.location.*
@@ -69,8 +71,7 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
 import com.shreyaspatil.material.navigationview.MaterialNavigationView
 import kotlinx.android.synthetic.main.bottomsheet_addresslist.*
 import kotlinx.android.synthetic.main.bottomsheet_nearbylist.*
-import kotlinx.android.synthetic.main.bottomsheet_placeview.textview_address
-import kotlinx.android.synthetic.main.bottomsheet_placeview.textview_area
+
 import kotlinx.android.synthetic.main.bottomsheet_rupantor.*
 import org.json.JSONArray
 import org.json.JSONException
@@ -132,6 +133,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         mapView!!.onCreate(savedInstanceState)
         mapView!!.getMapAsync(this)
 
+        //showEnableLocationSetting()
         val drawerLayout: AdvanceDrawerLayout = findViewById(R.id.drawer_layout)
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
@@ -263,6 +265,37 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         }
 
     }
+    companion object {
+        const val LOCATION_SETTING_REQUEST = 999
+    }
+
+//    fun showEnableLocationSetting() {
+//
+//        val locationRequest = LocationRequest.create()
+//        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+//
+//        val builder = LocationSettingsRequest.Builder()
+//            .addLocationRequest(locationRequest)
+//
+//        val task = LocationServices.getSettingsClient(this)
+//            .checkLocationSettings(builder.build())
+//
+//        task.addOnSuccessListener { response ->
+//            val states = response.locationSettingsStates
+//            if (states.isLocationPresent) {
+//                //Do something
+//            }
+//        }
+//        task.addOnFailureListener { e ->
+//            if (e is ResolvableApiException) {
+//                try {
+//                    // Handle result in onActivityResult()
+//                    e.startResolutionForResult(this,
+//                        MainDemoActivity.LOCATION_SETTING_REQUEST)
+//                } catch (sendEx: IntentSender.SendIntentException) { }
+//            }
+//        }
+//    }
     private fun enableLocation() {
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
             // Create an instance of LOST location engine
@@ -288,6 +321,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
             originLocation = lastLocation
             currentLat = lastLocation!!.latitude
             currentLng = lastLocation!!.longitude
+            Log.d("Search", "getLastLatLon: " +currentLat+ ", " +currentLng)
             setCameraPosition(LatLng(lastLocation.latitude, lastLocation.longitude), 17.0)
             locationEngine!!.removeLocationUpdates()
         } else {
@@ -1185,11 +1219,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray)
+    {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
