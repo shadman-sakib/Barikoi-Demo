@@ -24,6 +24,7 @@
     <string name="Nearby_Address">Nearby Addresses</string>
     <string name="CheckOut">Checkout Demo</string>
     <string name="navigation">Navigation</string>
+    <string name="location">Find Location</string>
     <string name="Name">Name</string>
     <string name="Phone">Contact number</string>
     <string name="InputAddress">Enter address</string>

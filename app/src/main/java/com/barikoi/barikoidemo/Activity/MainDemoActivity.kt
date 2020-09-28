@@ -169,6 +169,9 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                     intent.putExtra("lat",currentLat)
                     intent.putExtra("lng",currentLng)
                     startActivity(intent)}
+                R.id.nav_location -> {val intent = Intent(this@MainDemoActivity, LocationCheck::class.java)
+                    Log.d(TAG, "Current Location: " + currentLat + "," +currentLng)
+                    startActivity(intent)}
             }
             drawerLayout.closeDrawer(GravityCompat.START)
 
