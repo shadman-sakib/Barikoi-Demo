@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <dist:module dist:instant="true" />
 
@@ -20,31 +21,42 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Activity.LocationCheck"></activity>
+        <activity android:name=".Activity.LocationCheck" />
         <activity android:name=".Main2Activity" />
         <activity
             android:name=".Activity.RouteNavigationActivity"
             android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden"></activity>
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".Activity.SearchPlaceActivity"
-            android:theme="@style/NoActionBar"></activity>
+            android:theme="@style/NoActionBar" />
         <activity android:name=".Activity.GhurboKoiActivity" />
         <activity
             android:name=".Activity.CheckOutActivity"
             android:label="@string/title_activity_check_out"
             android:windowSoftInputMode="stateHidden" />
+
         <activity
-            android:name=".Activity.MainDemoActivity"
-            android:label="@string/title_activity_main_demo"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:windowSoftInputMode="stateHidden">
+            android:name=".Activity.SplashActivity"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".Activity.MainDemoActivity"
+            android:label="@string/title_activity_main_demo"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden">
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.MAIN" />-->
+
+<!--                <category android:name="android.intent.category.LAUNCHER" />-->
+<!--            </intent-filter>-->
         </activity>
         <activity
             android:name=".Activity.MainActivity"

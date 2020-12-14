@@ -62,9 +62,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.ViewHolder
         holder.mItem = places.get(position);
 
         Log.d("Search", "Onclicked Position: " +holder.mItem.getAddress());
-        Log.d("Search", "Onclicked Placeview: " +holder.placeView);
-        Log.d("Search", "Onclicked Placeview: " +holder.placeView.toString());
-        Log.d("Search", "Onclicked AreaTag: " +holder.areatag);
+        Log.d("Search", "Onclicked AreaTag: " +holder.mItem.getArea());
 
         holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override

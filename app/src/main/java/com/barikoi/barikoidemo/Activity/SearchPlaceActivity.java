@@ -45,7 +45,6 @@ import com.android.volley.toolbox.StringRequest;
 
 import com.barikoi.barikoidemo.Model.RequestQueueSingleton;
 import com.barikoi.barikoidemo.Task.JsonUtilsTask;
-import com.google.firebase.analytics.FirebaseAnalytics;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,7 +76,6 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
     EditText editText;
     ProgressBar progressBar;
     ImageView imageBack, imageClose;
-    FirebaseAnalytics firebaseAnalytics;
     //FirebaseAnalytics mFirebaseaAnalytics;
     private TextView addplace,couldntfind;
     private LinearLayout searchdeeplayout;
@@ -97,7 +95,6 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
         // handledearch(getIntent());
         //mFirebaseaAnalytics=FirebaseAnalytics.getInstance(this);
         //GetSavedPlace();
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
         imageBack = findViewById(R.id.imageBack);
         imageClose = findViewById(R.id.imgClose);
         progressBar=findViewById(R.id.progressBarSearchPlace);
@@ -350,7 +347,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
         queue.cancelAll("search");
         items.clear();
         if (nameOrCode.length() > 0) {
-            StringRequest request = new StringRequest(Request.Method.POST,
+            StringRequest request = new StringRequest(Request.Method.GET,
                     Api.INSTANCE.getSearchUrl()+ params,
                     (String response) -> {
                         //loading.setVisibility(View.GONE);
@@ -539,7 +536,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
     @Override
     public void onPlaceItemSelected(Place mItem, int position) {
         //SavePlace(mItem);
-        getGeoCodePlace(mItem.getCode());
+        getGeoCodePlace(mItem.getCode(), mItem);
     }
 //    public void SavePlace(Place mItem){
 //        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -580,20 +577,43 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
 //
 //        return place;
 //    }
-    public void getGeoCodePlace(String nameOrCode){
+    public void getGeoCodePlace(String nameOrCode, Place placeItem){
         queue.cancelAll("search");
         progressBar.setVisibility(View.VISIBLE);
         if (nameOrCode.length() > 0) {
-            StringRequest request = new StringRequest(Request.Method.POST,
-                    Api.INSTANCE.getGeoUrl() +nameOrCode,
+            StringRequest request = new StringRequest(Request.Method.GET,
+                    Api.INSTANCE.getUrl_geo_search() +nameOrCode,
                     (String response) -> {
+
                         try {
-                            JSONArray jsonArray=new JSONArray(response);
-                            JSONObject data =jsonArray.getJSONObject(0);
-                            Place newplace = JsonUtilsTask.getPlace(data);
-                            progressBar.setVisibility(View.GONE);
-                            //SavePlace(newplace);
-                            ReturnPlace(newplace);
+                            //Log.d("SearchHome", "response: " +response);
+//                            JSONArray jsonArray=new JSONArray(response);
+//                            JSONObject data =jsonArray.getJSONObject(0);
+                            JSONObject data=new JSONObject(response);
+                            if (data.has("message")){
+                                progressBar.setVisibility(View.GONE);
+                                if (placeItem != null) {
+                                    Log.d("Search", "PlaceMessage: " +placeItem);
+                                    //Log.d("SearchHome", "Pidmessage: " + placeItem.getPid());
+                                    //SavePlace(placeItem);
+                                    ReturnPlace(placeItem);
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "Place not found", Toast.LENGTH_SHORT).show();
+                                }
+
+                            }else {
+                                Place newplace = JsonUtilsTask.getPlace(data);
+                                progressBar.setVisibility(View.GONE);
+                                if (newplace != null) {
+                                    Log.d("Search", "data: " + data.toString());
+                                    Log.d("Search", "Place: " + newplace);
+                                    //Log.d("SearchHome", "Pid: " + newplace.getPid());
+                                    //SavePlace(newplace);
+                                    ReturnPlace(newplace);
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "Place not found", Toast.LENGTH_SHORT).show();
+                                }
+                            }
 
                         } catch (JSONException e) {
                             try{
@@ -601,7 +621,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
                                 //Toast.makeText(SearchPlaceActivity.this,data.getJSONObject("places").getString("Message"), Toast.LENGTH_SHORT).show();
                             }
                             catch (JSONException ex){
-                                Toast.makeText(SearchPlaceActivity.this,"problem formatting data", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(),"problem formatting data", Toast.LENGTH_SHORT).show();
                                 ex.printStackTrace();
                             }
 

@@ -7,7 +7,7 @@ package com.barikoi.barikoidemo.Model
 
 object Api {
     var isauth:Boolean=false
-    val url_base = "https://admin.barikoi.xyz/v1/"
+    val url_base = "https://admin.barikoi.xyz:8090/"
     val loginurl = url_base + "auth/login"
     val usercheckurl = url_base + "auth/user"
     val logouturl = url_base + "auth/invalidate"

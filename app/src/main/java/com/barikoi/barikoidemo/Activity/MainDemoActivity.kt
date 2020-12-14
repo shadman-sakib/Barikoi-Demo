@@ -50,7 +50,6 @@ import com.barikoi.barikoidemo.Task.JsonUtilsTask
 import com.barikoi.barikoidemo.Adapter.PlaceListAdapter
 import com.barikoi.barikoidemo.R
 
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.infideap.drawerbehavior.AdvanceDrawerLayout
 import com.mapbox.android.core.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
@@ -67,6 +66,7 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.Telemetry
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerOptions
 import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
+import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
 import com.shreyaspatil.material.navigationview.MaterialNavigationView
 import kotlinx.android.synthetic.main.bottomsheet_addresslist.*
@@ -101,8 +101,6 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     private var originLocation: Location? = null
     //private lateinit var appBarConfiguration: AppBarConfiguration
 
-    private var firebaseAnalytics: FirebaseAnalytics? = null
-
     private val requestCode = 555
     val GHURBOKOI = 23
     var gridLayoutManager: GridLayoutManager ?=null
@@ -117,18 +115,18 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
     private val TAG = "MainActivityDemo"
 
-    @SuppressLint("InvalidWakeLockTag")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
+
         setContentView(R.layout.activity_main_demo)
+        Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
 
 
         Telemetry.disableOnUserRequest()
-        mapView = findViewById(R.id.mapView)
+        mapView = findViewById<MapView>(R.id.mapView)
         mapView!!.setStyleUrl(getString(R.string.map_view_styleUrl))
         mapView!!.onCreate(savedInstanceState)
         mapView!!.getMapAsync(this)
@@ -192,8 +190,6 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         initSearchautocomplete()
         //checkOptimization()
 
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
-
 
 
     }
@@ -236,7 +232,9 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     override fun onMapReady(mapboxMap: MapboxMap) {
         Log.d(TAG,"map ready")
         map = mapboxMap
+        enableLocation()
 
+        map!!.getUiSettings().setCompassEnabled(false)
 //        mapboxMap.setStyle(Style.Builder().fromUrl(getString(R.string.map_view_styleUrl))) {
 //
 //            // Custom map style has been loaded and map is now ready
@@ -245,7 +243,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 //        }
 
         //mapView!!.setStyleUrl(getString(R.string.map_view_styleUrl))
-        enableLocation()
+
 
 //        mapboxMap.setStyle(Style.MAPBOX_STREETS) {
 //            enableLocationComponent()
@@ -253,6 +251,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 //        }
 
         fab.setOnClickListener {
+
             if (locationEngine != null) {
                 @SuppressLint("MissingPermission")
                 val lastLocation = locationEngine!!.lastLocation
@@ -314,12 +313,22 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         locationEngine = locationEngineProvider.obtainBestLocationEngineAvailable()
         locationEngine!!.priority = LocationEnginePriority.HIGH_ACCURACY
         locationEngine!!.activate()
+        Log.d("Search", "location Engine: " +locationEngine)
+
         if (locationPlugin == null) {
             locationPlugin = LocationLayerPlugin(mapView!!, map!!, locationEngine, LocationLayerOptions.builder(this).maxZoom(25.0).build())
+            locationPlugin!!.setLocationLayerEnabled(true)
+            locationPlugin!!.setCameraMode(CameraMode.TRACKING)
             locationPlugin!!.renderMode = RenderMode.COMPASS
+            map!!.moveCamera(CameraUpdateFactory.zoomTo(17.0))
+            //map!!.animateCamera(CameraUpdateFactory.zoomTo(17.0))
         }
         // currentLocation.displayLocation();
+
+        locationEngine!!.addLocationEngineListener(this)
+        locationEngine!!.requestLocationUpdates()
         val lastLocation = locationEngine!!.lastLocation
+        Log.d("Search", "getLastLatLon: " +locationEngine!!.lastLocation)
         if (lastLocation != null) {
             originLocation = lastLocation
             currentLat = lastLocation!!.latitude
@@ -1161,13 +1170,26 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     @SuppressLint("MissingPermission")
     override fun onStart() {
         super.onStart()
+        if (locationEngine != null) {
+            locationEngine!!.requestLocationUpdates()
+        }
+        if (locationPlugin != null) {
+            locationPlugin!!.onStart()
+        }
+
         mapView!!.onStart()
     }
 
     override fun onStop() {
-
-        mapView!!.onStop()
         super.onStop()
+        if (locationEngine != null) {
+            locationEngine!!.removeLocationUpdates()
+        }
+        if (locationPlugin != null) {
+            locationPlugin!!.onStop()
+        }
+        mapView!!.onStop()
+
     }
 
     @SuppressLint("MissingPermission")
@@ -1179,13 +1201,19 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     override fun onLocationChanged(location: Location?) {
         Log.d("OnLoc", "Onlocchanged")
         if (location != null) {
-            originLocation = location
-            setCameraPosition(LatLng(location.latitude, location.longitude), 17.0)
-            if (map != null) /*IntentDataCheck()*/
-            locationEngine!!.removeLocationEngineListener(this)
+//            taskerLat = location.latitude
+//            taskerLon = location.longitude
+            //setCameraPosition(LatLng(location.latitude, location.longitude), 15.0)
+            //Log.d("locationupdate", "taskerLat: $taskerLat taskLat: $taskLon")
+            //getAltRoute(taskerLat, taskerLon, taskLat, taskLon)
+            //setCameraPosition(LatLng(location.latitude, location.longitude), 15.0)
+            if (map != null)
+            /*IntentDataCheck()*/
+                locationEngine!!.removeLocationEngineListener(this)
         } else {
             locationEngine!!.requestLocationUpdates()
         }
+
     }
     override fun onDestroy() {
 
@@ -1229,7 +1257,9 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
 
 
+            Log.d("Search", "grantResult: " +grantResults)
         } else {
+            Log.d("Search", "grantResult 2: " +grantResults)
             //enableLocationComponent()
             enableLocation()
         }

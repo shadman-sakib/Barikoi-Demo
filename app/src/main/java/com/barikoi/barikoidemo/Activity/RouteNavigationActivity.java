@@ -25,7 +25,6 @@ import com.barikoi.barikoidemo.R;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineListener;
 import com.mapbox.android.core.location.LocationEnginePriority;
@@ -79,7 +78,6 @@ public class RouteNavigationActivity extends AppCompatActivity implements OnMapR
     TextView tvdistance, tvduration;
     TextInputLayout textInputSource, textInputDest;
     FloatingActionButton fab;
-    FirebaseAnalytics firebaseAnalytics;
     private MapView mapView;
     private MapboxMap mMap;
     private LocationManager locationManager;
@@ -103,8 +101,6 @@ public class RouteNavigationActivity extends AppCompatActivity implements OnMapR
 
         Mapbox.getInstance(RouteNavigationActivity.this, getString(R.string.mapbox_access_token));
         setContentView(R.layout.activity_route_navigation);
-
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         Telemetry.disableOnUserRequest();
         mapView = findViewById(R.id.mapview);

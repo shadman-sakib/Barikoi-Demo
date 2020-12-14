@@ -49,9 +49,9 @@
     app:layout_behavior=".CustomMapBehaviour">
 
         <com.mapbox.mapboxsdk.maps.MapView
-        android:id="@+id/mapView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             app:mapbox_uiAttribution="false"
             app:mapbox_uiAttributionMarginLeft="5dp"
             app:mapbox_uiLogo="false">
