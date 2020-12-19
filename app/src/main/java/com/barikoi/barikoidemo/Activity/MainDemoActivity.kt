@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Location
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -24,6 +25,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
+import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import barikoi.barikoilocation.BarikoiAPI
@@ -69,6 +71,7 @@ import com.mapbox.mapboxsdk.plugins.locationlayer.LocationLayerPlugin
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.CameraMode
 import com.mapbox.mapboxsdk.plugins.locationlayer.modes.RenderMode
 import com.shreyaspatil.material.navigationview.MaterialNavigationView
+import kotlinx.android.synthetic.main.activity_location_check.*
 import kotlinx.android.synthetic.main.bottomsheet_addresslist.*
 import kotlinx.android.synthetic.main.bottomsheet_nearbylist.*
 
@@ -99,6 +102,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     private var locationEngine: LocationEngine? = null
     private var locationPlugin: LocationLayerPlugin? = null
     private var originLocation: Location? = null
+    internal var backpress = 0
+    internal var startDate: Long = 0
     //private lateinit var appBarConfiguration: AppBarConfiguration
 
     private val requestCode = 555
@@ -155,12 +160,13 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 R.id.nav_rupantor -> initRupantor()
                 R.id.nav_nearby -> initNearby()
                 R.id.nav_addresses -> initAddress()
-                R.id.nav_checkout ->{val intent = Intent(this@MainDemoActivity, CheckOutActivity::class.java)
+                R.id.nav_checkout ->{
+                    val intent = Intent(this@MainDemoActivity, CheckOutActivity::class.java)
                     Log.d(TAG, "Current Location: " + currentLat + "," +currentLng)
                     intent.putExtra("location",currentlocation.toString())
                     intent.putExtra("lat",currentLat)
                     intent.putExtra("lng",currentLng)
-                    startActivity(intent)}
+                    startActivity(intent) }
                 R.id.nav_navigation -> {val intent = Intent(this@MainDemoActivity, RouteNavigationActivity::class.java)
                     Log.d(TAG, "Current Location: " + currentLat + "," +currentLng)
                     intent.putExtra("location",currentlocation.toString())
@@ -301,6 +307,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     private fun enableLocation() {
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
             // Create an instance of LOST location engine
+            Log.d(TAG, "enableLocation: " +locationPlugin)
             initializeLocationEngine()
         } else {
             permissionsManager = PermissionsManager(this)
@@ -314,8 +321,10 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         locationEngine!!.priority = LocationEnginePriority.HIGH_ACCURACY
         locationEngine!!.activate()
         Log.d("Search", "location Engine: " +locationEngine)
+        Log.d(TAG, "locationPlugin: " +locationPlugin)
 
         if (locationPlugin == null) {
+            Log.d(TAG, "locationPlugin 2: " +locationPlugin)
             locationPlugin = LocationLayerPlugin(mapView!!, map!!, locationEngine, LocationLayerOptions.builder(this).maxZoom(25.0).build())
             locationPlugin!!.setLocationLayerEnabled(true)
             locationPlugin!!.setCameraMode(CameraMode.TRACKING)
@@ -331,8 +340,9 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         Log.d("Search", "getLastLatLon: " +locationEngine!!.lastLocation)
         if (lastLocation != null) {
             originLocation = lastLocation
-            currentLat = lastLocation!!.latitude
-            currentLng = lastLocation!!.longitude
+            currentlocation = lastLocation
+            currentLat = lastLocation.latitude
+            currentLng = lastLocation.longitude
             Log.d("Search", "getLastLatLon: " +currentLat+ ", " +currentLng)
             setCameraPosition(LatLng(lastLocation.latitude, lastLocation.longitude), 17.0)
             locationEngine!!.removeLocationUpdates()
@@ -712,6 +722,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
     private fun initReversegeo() {
         clearmode()
+
         map_pointer.visibility= VISIBLE
 
         etRev.visibility = VISIBLE
@@ -768,6 +779,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                         Log.d(TAG, "reversedAddress")
                         progress.visibility=GONE
 
+                        BottomSheetDown()
                         editTextRev.setText(place?.address)
                         /*add if needed*/
                         //textview_address.text=place?.address
@@ -826,12 +838,16 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
 //        mBottomSheetBehaviorplaceview?.setState(BottomSheetBehavior.STATE_EXPANDED)
 //        mBottomSheetBehaviorplaceview?.setHideable(false)
+        Log.d(TAG, "longitude= " + lon + "latitude= " + lat)
         val request = object : StringRequest(Method.GET,
             Api.addplacesugg + "?longitude=" + lon + "&latitude=" + lat,
-            Response.Listener { response ->
+            { response: String ->
                 try {
                     progress.visibility=GONE
-                    val placearray = JSONArray(response.toString())
+                    val data = JSONObject(response)
+                    Log.d("search result", data.toString())
+                    val placearray = data.getJSONArray("data")
+                    //val placearray = JSONArray(response.toString())
                     val newplaces = JsonUtilsTask.getPlaces(placearray)
 
                     Log.d(TAG, "SuggestionList: "+newplaces)
@@ -882,7 +898,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
                 }
             },
-            Response.ErrorListener {
+            { error ->
                 progress.visibility=GONE
                 //Toast.makeText(getActivity(),"Network error",Toast.LENGTH_SHORT).show();
             }) {
@@ -896,6 +912,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
             }
         }
         val queue = Volley.newRequestQueue(this@MainDemoActivity)
+        Log.d(TAG, "url nearbyaddress: "+request.url)
+
         queue.add(request)
         //progress.visibility= VISIBLE
 //        findViewById<View>(R.id.buttonskip).setOnClickListener {
@@ -1019,7 +1037,8 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         placemarkermap?.clear()
         map?.clear()
         Log.d(TAG, "PlotMarker: " +p.lat.toDouble() + "," +p.lon.toDouble())
-        map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(p.lat.toDouble(), p.lon.toDouble()),17.0))
+        //map!!.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(p.lat.toDouble(), p.lon.toDouble()),17.0))
+
         val m = map!!.addMarker(
             MarkerOptions().position(
                 LatLng(
@@ -1028,6 +1047,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 )
             ).title( p.address)
         )
+        setCameraPosition(LatLng(p.lat.toDouble(), p.lon.toDouble()), 17.0)
         Log.d(TAG, "PlotMarker 2: " +p.code)
         placemarkermap?.put(p.code, m)
     }
@@ -1143,20 +1163,22 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
                 //currentLocation!!.getAddressByGeoCode(place!!.code)
                 mBottomSheetBehaviorplaceview!!.isHideable = false
                 mBottomSheetBehaviorplaceview!!.state = BottomSheetBehavior.STATE_EXPANDED
-                plotmarkerSearch(place!!)
+
                 textview_address.text= place!!.address
                 textview_area.text= place!!.area
 
                 window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+                plotmarkerSearch(place!!)
 
             }
             if (resultCode == Activity.RESULT_CANCELED) {
                 if (data != null) {
                     val error = data.getStringExtra("error")
                     Log.d(TAG, "Error: " + error!!)
-                } else {
-
                 }
+//                else {
+//
+//                }
                 //Write your code if there's no result
             }
         }
@@ -1170,18 +1192,22 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
     @SuppressLint("MissingPermission")
     override fun onStart() {
         super.onStart()
-        if (locationEngine != null) {
-            locationEngine!!.requestLocationUpdates()
-        }
-        if (locationPlugin != null) {
-            locationPlugin!!.onStart()
-        }
+        Log.d(TAG, "On Start")
+        Log.d(TAG, "locationPlugin OnStart: " +locationPlugin)
+//        if (locationEngine != null) {
+//            locationEngine!!.requestLocationUpdates()
+//        }
+//        if (locationPlugin != null) {
+//            locationPlugin!!.onStart()
+//        }
 
         mapView!!.onStart()
     }
 
     override fun onStop() {
         super.onStop()
+        Log.d(TAG, "On Stop")
+        Log.d(TAG, "locationPlugin OnStop: " +locationPlugin)
         if (locationEngine != null) {
             locationEngine!!.removeLocationUpdates()
         }
@@ -1194,12 +1220,13 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
     @SuppressLint("MissingPermission")
     override fun onConnected() {
+        Log.d(TAG, "On Connected")
         locationEngine!!.requestLocationUpdates()
 
     }
     @SuppressLint("MissingPermission")
     override fun onLocationChanged(location: Location?) {
-        Log.d("OnLoc", "Onlocchanged")
+        Log.d(TAG, "Onlocchanged")
         if (location != null) {
 //            taskerLat = location.latitude
 //            taskerLon = location.longitude
@@ -1207,6 +1234,12 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
             //Log.d("locationupdate", "taskerLat: $taskerLat taskLat: $taskLon")
             //getAltRoute(taskerLat, taskerLon, taskLat, taskLon)
             //setCameraPosition(LatLng(location.latitude, location.longitude), 15.0)
+            originLocation = location
+            currentlocation = location
+            currentLat = location.latitude
+            currentLng = location.longitude
+            Log.d("Search", "getLastLatLon: " +currentLat+ ", " +currentLng)
+            setCameraPosition(LatLng(location.latitude, location.longitude), 17.0)
             if (map != null)
             /*IntentDataCheck()*/
                 locationEngine!!.removeLocationEngineListener(this)
@@ -1228,11 +1261,13 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
     override fun onResume() {
         super.onResume()
+        Log.d(TAG, "On Resume")
         mapView!!.onResume()
     }
 
     override fun onPause() {
         super.onPause()
+        Log.d(TAG, "On Pause")
         mapView!!.onPause()
     }
 
@@ -1243,6 +1278,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
     override fun onPermissionResult(granted: Boolean) {
         //enableLocationComponent()
+        Log.d(TAG, "On Permission Result")
         enableLocation()
     }
 
@@ -1259,7 +1295,7 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
             Log.d("Search", "grantResult: " +grantResults)
         } else {
-            Log.d("Search", "grantResult 2: " +grantResults)
+            Log.d(TAG, "grantResult 2: " +grantResults)
             //enableLocationComponent()
             enableLocation()
         }
@@ -1282,4 +1318,67 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }*/
+
+    fun BottomSheetDown() {
+        if (mBottomSheetBehaviorAddress!!.state != BottomSheetBehavior.STATE_HIDDEN) {
+            mBottomSheetBehaviorAddress!!.isHideable = true
+            mBottomSheetBehaviorAddress!!.state = BottomSheetBehavior.STATE_HIDDEN
+        }
+        if (mBottomSheetBehaviorNearby!!.state != BottomSheetBehavior.STATE_HIDDEN) {
+            mBottomSheetBehaviorNearby!!.isHideable = true
+            mBottomSheetBehaviorNearby!!.state = BottomSheetBehavior.STATE_HIDDEN
+        }
+        if (mBottomSheetBehaviorRupantor!!.state != BottomSheetBehavior.STATE_HIDDEN) {
+            mBottomSheetBehaviorRupantor!!.isHideable = true
+            mBottomSheetBehaviorRupantor!!.state = BottomSheetBehavior.STATE_HIDDEN
+        }
+        if (mBottomSheetBehaviorplaceview!!.state != BottomSheetBehavior.STATE_HIDDEN) {
+            mBottomSheetBehaviorplaceview!!.isHideable = true
+            mBottomSheetBehaviorplaceview!!.state = BottomSheetBehavior.STATE_HIDDEN
+        }
+
+
+    }
+    override fun onBackPressed() {
+        val prev = supportFragmentManager.findFragmentByTag(MorePlaceTypeFragment.TAG)
+        if (prev != null) {
+            val df = prev as DialogFragment?
+            df!!.dismiss()
+        }
+
+        val drawer: AdvanceDrawerLayout = findViewById(R.id.drawer_layout)
+
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START)
+        } else if (mBottomSheetBehaviorAddress!!.state != BottomSheetBehavior.STATE_HIDDEN) {
+            BottomSheetDown()
+            clearmode()
+        } else if (mBottomSheetBehaviorNearby!!.state != BottomSheetBehavior.STATE_HIDDEN) {
+            BottomSheetDown()
+            clearmode()
+        } else if (mBottomSheetBehaviorplaceview!!.state == BottomSheetBehavior.STATE_EXPANDED) {
+            BottomSheetDown()
+            clearmode()
+        } else if (mBottomSheetBehaviorRupantor!!.state == BottomSheetBehavior.STATE_EXPANDED) {
+            BottomSheetDown()
+            clearmode()
+        } else {
+            if (backpress == 0) {
+                startDate = System.currentTimeMillis()
+                backpress += 1
+                Toast.makeText(applicationContext, "Press again  to exit", Toast.LENGTH_SHORT).show()
+            } else if (backpress > 0) {
+                val endDate = System.currentTimeMillis()
+                val diffInMs = (endDate - startDate) / 1000
+                if (diffInMs >= 2) {
+                    backpress = 0
+                } else {
+                    super.onBackPressed()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        finishAffinity()
+                    }
+                }
+            }
+        }
+    }
 }
