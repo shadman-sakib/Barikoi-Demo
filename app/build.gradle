@@ -55,7 +55,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.0.0'
     implementation 'com.github.bumptech.glide:glide:3.8.0'
     testImplementation 'junit:junit:4.12'
-    implementation 'com.github.barikoi:BarikoiLocationLibrary:v1.2.2'
+    implementation 'com.github.barikoi:BarikoiLocationLibrary:v1.2.3'
 
     implementation 'com.graphhopper:graphhopper-navigation-android-ui:0.1.0-SNAPSHOT'
     implementation 'com.graphhopper:directions-api-client:0.10.1-4'

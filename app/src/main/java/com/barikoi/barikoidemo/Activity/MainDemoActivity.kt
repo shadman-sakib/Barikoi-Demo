@@ -1,5 +1,6 @@
 package com.barikoi.barikoidemo.Activity
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -24,11 +25,13 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import barikoi.barikoilocation.BarikoiAPI
+import barikoi.barikoilocation.GetLocationTask
 import barikoi.barikoilocation.JsonUtils
 import barikoi.barikoilocation.NearbyPlace.NearbyPlaceAPI
 import barikoi.barikoilocation.NearbyPlace.NearbyPlaceListener
@@ -51,6 +54,11 @@ import com.barikoi.barikoidemo.Model.Type
 import com.barikoi.barikoidemo.Task.JsonUtilsTask
 import com.barikoi.barikoidemo.Adapter.PlaceListAdapter
 import com.barikoi.barikoidemo.R
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.android.gms.tasks.Task
 
 import com.infideap.drawerbehavior.AdvanceDrawerLayout
 import com.mapbox.android.core.location.*
@@ -120,6 +128,9 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
     private val TAG = "MainActivityDemo"
 
+    var REQUEST_CHECK_SETTINGS = 0x2
+    var REQUEST_CHECK_PERMISSION = 0x1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -128,15 +139,13 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
-
-
         Telemetry.disableOnUserRequest()
         mapView = findViewById<MapView>(R.id.mapView)
         mapView!!.setStyleUrl(getString(R.string.map_view_styleUrl))
         mapView!!.onCreate(savedInstanceState)
         mapView!!.getMapAsync(this)
 
-        //showEnableLocationSetting()
+        showEnableLocationSetting()
         val drawerLayout: AdvanceDrawerLayout = findViewById(R.id.drawer_layout)
         val toggle = ActionBarDrawerToggle(
             this, drawerLayout, toolbar,
@@ -182,7 +191,6 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
             true
         }
 
-
         /*resourse name checking by id
 //        val id = 2131361916
 //        val name = getResources().getResourceEntryName(id)
@@ -191,12 +199,9 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
 
         */
 
-
         initViews()
         initSearchautocomplete()
         //checkOptimization()
-
-
 
     }
 
@@ -241,6 +246,9 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         enableLocation()
 
         map!!.getUiSettings().setCompassEnabled(false)
+
+//        val getLocationTask = GetLocationTask(this)
+//        getLocationTask.displayLocation()
 //        mapboxMap.setStyle(Style.Builder().fromUrl(getString(R.string.map_view_styleUrl))) {
 //
 //            // Custom map style has been loaded and map is now ready
@@ -277,33 +285,33 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         const val LOCATION_SETTING_REQUEST = 999
     }
 
-//    fun showEnableLocationSetting() {
-//
-//        val locationRequest = LocationRequest.create()
-//        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-//
-//        val builder = LocationSettingsRequest.Builder()
-//            .addLocationRequest(locationRequest)
-//
-//        val task = LocationServices.getSettingsClient(this)
-//            .checkLocationSettings(builder.build())
-//
-//        task.addOnSuccessListener { response ->
-//            val states = response.locationSettingsStates
-//            if (states.isLocationPresent) {
-//                //Do something
-//            }
-//        }
-//        task.addOnFailureListener { e ->
-//            if (e is ResolvableApiException) {
-//                try {
-//                    // Handle result in onActivityResult()
-//                    e.startResolutionForResult(this,
-//                        MainDemoActivity.LOCATION_SETTING_REQUEST)
-//                } catch (sendEx: IntentSender.SendIntentException) { }
-//            }
-//        }
-//    }
+    fun showEnableLocationSetting() {
+
+        val locationRequest = LocationRequest.create()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+
+        val builder = LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+
+        val task = LocationServices.getSettingsClient(this)
+            .checkLocationSettings(builder.build())
+
+        task.addOnSuccessListener { response ->
+            val states = response.locationSettingsStates
+            if (states.isLocationPresent) {
+                //Do something
+            }
+        }
+        task.addOnFailureListener { e ->
+            if (e is ResolvableApiException) {
+                try {
+                    // Handle result in onActivityResult()
+                    e.startResolutionForResult(this,
+                        MainDemoActivity.LOCATION_SETTING_REQUEST)
+                } catch (sendEx: IntentSender.SendIntentException) { }
+            }
+        }
+    }
     private fun enableLocation() {
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
             // Create an instance of LOST location engine
@@ -1381,4 +1389,5 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
             }
         }
     }
+
 }
