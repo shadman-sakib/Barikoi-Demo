@@ -497,8 +497,18 @@ class MainDemoActivity : AppCompatActivity(), OnMapReadyCallback, PermissionsLis
         map?.addOnMoveListener (maprevgeolistener2)
 
         btn_addressList.setOnClickListener { v ->
-            mBottomSheetBehaviorAddress!!.state =
-                BottomSheetBehavior.STATE_EXPANDED
+            if(mBottomSheetBehaviorAddress!!.state == BottomSheetBehavior.STATE_EXPANDED){
+                mBottomSheetBehaviorAddress!!.isHideable=true
+                mBottomSheetBehaviorAddress!!.state = BottomSheetBehavior.STATE_HIDDEN
+//                if (mBottomSheetBehaviorAddress!!.state == BottomSheetBehavior.STATE_HIDDEN){
+//                    mBottomSheetBehaviorAddress!!.state = BottomSheetBehavior.STATE_EXPANDED
+//                }
+
+            }else{
+                mBottomSheetBehaviorAddress!!.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+
+
 
             initsuggestionList(
                 map?.cameraPosition!!.target.latitude,
