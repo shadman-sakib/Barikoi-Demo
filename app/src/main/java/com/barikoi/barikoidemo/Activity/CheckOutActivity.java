@@ -135,7 +135,7 @@ public class CheckOutActivity extends AppCompatActivity {
 
                                     @Override
                                     public void onFailure(String message) {
-                                        Toast.makeText(CheckOutActivity.this, message, Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                                     }
                                 });
 
@@ -151,7 +151,7 @@ public class CheckOutActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Toast.makeText(CheckOutActivity.this, "Successfully Checkout", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Successfully Checkout", Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -147,7 +147,7 @@ public class GhurboKoiActivity extends AppCompatActivity implements GhurboAdapte
 
                             } catch (JSONException e) {
                                 loading.setVisibility(View.GONE);
-                                Toast.makeText(GhurboKoiActivity.this, "problem or change in server, please wait and try again.", Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(), "problem or change in server, please wait and try again.", Toast.LENGTH_LONG).show();
                             }
                         }
 
@@ -156,7 +156,7 @@ public class GhurboKoiActivity extends AppCompatActivity implements GhurboAdapte
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             loading.setVisibility(View.GONE);
-                            Toast.makeText(GhurboKoiActivity.this,"Could not get result", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(),"Could not get result", Toast.LENGTH_LONG).show();
                         }
                     }
             ){

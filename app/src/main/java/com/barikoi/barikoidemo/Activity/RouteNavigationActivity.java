@@ -289,7 +289,7 @@ public class RouteNavigationActivity extends AppCompatActivity implements OnMapR
 
                     @Override
                     public void onFailure(String message) {
-                        Toast.makeText(RouteNavigationActivity.this, message, Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                     }
                 });
     }

@@ -333,11 +333,13 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
 //            }
 //        });
 
-        if(locationChecked.isChecked()){
+        /*if(locationChecked.isChecked()){
             params = "?search="+nameOrCode+"&latitude="+Lat+"&longitude="+Lon;
         }else {
             params = "?search="+nameOrCode;
-        }
+        }*/
+
+        params = "?q="+nameOrCode+"&lat="+Lat+"&lon="+Lon;
 
         //loading.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.VISIBLE);
@@ -388,7 +390,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
                                 //Toast.makeText(SearchPlaceActivity.this,data.getJSONObject("places").getString("Message"), Toast.LENGTH_SHORT).show();
                             }
                             catch (JSONException ex){
-                                Toast.makeText(SearchPlaceActivity.this,"problem formatting data", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(),"problem formatting data", Toast.LENGTH_SHORT).show();
                                 ex.printStackTrace();
                             }
 
@@ -412,12 +414,14 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
                     return params;
                 }
 
-                public Map<String, String> getParams() throws AuthFailureError {
+                /*public Map<String, String> getParams() throws AuthFailureError {
                     Map<String, String> params = new HashMap<String, String>();
                     params.put("search", nameOrCode);
                     return params;
-                }
+                }*/
             };
+
+            Log.d("Search","url: "+request.getUrl());
             request.setTag("search");
             //loading.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.VISIBLE);
@@ -703,7 +707,7 @@ public class SearchPlaceActivity extends AppCompatActivity implements SearchAdap
     private void sendmissing(String missing){
         StringRequest request= new StringRequest(Request.Method.POST, Api.INSTANCE.getUrl_couldntfind(),
                 response -> {
-                    Toast.makeText(this, "Thank you for helping us!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Thank you for helping us!", Toast.LENGTH_SHORT).show();
                 },error -> {
 
 

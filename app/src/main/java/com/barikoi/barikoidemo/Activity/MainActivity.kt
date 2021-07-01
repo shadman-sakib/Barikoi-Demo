@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         searchAutocompleteFragment!!.setPlaceSelectionListener(object :
             SearchAutocompleteFragment.PlaceSelectionListener {
             override fun onPlaceSelected(place: GeoCodePlace?) {
-                Toast.makeText(this@MainActivity, "" + place!!.address,Toast.LENGTH_LONG).show()
+                Toast.makeText(applicationContext, "" + place!!.address,Toast.LENGTH_LONG).show()
             }
             override fun onFailure(error: String) {
 
@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
                 .getAddress(object : ReverseGeoAPIListener {
                     override fun reversedAddress(place: ReverseGeoPlace?) {
                         Toast.makeText(
-                            this@MainActivity,
+                            applicationContext,
                             "" + place!!.getAddress(),
                             Toast.LENGTH_SHORT
                         ).show()
@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
                 .generateNearbyPlaceList(object : NearbyPlaceListener {
                     override fun onPlaceListReceived(places: ArrayList<NearbyPlace>?) {
                         Toast.makeText(
-                            this@MainActivity,
+                            applicationContext,
                             "" + places!![0].getAddress(),
                             Toast.LENGTH_SHORT
                         ).show()
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity() {
                 .generateList(object : PlaceGeoCodeListener {
                     override fun onGeoCodePlace(place: GeoCodePlace?) {
                         Toast.makeText(
-                            this@MainActivity,
+                            applicationContext,
                             "" + place!!.getAddress(),
                             Toast.LENGTH_SHORT
                         ).show()
@@ -99,7 +99,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     override fun onFailure(message: String) {
-                        Toast.makeText(this@MainActivity, "" + message, Toast.LENGTH_SHORT)
+                        Toast.makeText(applicationContext, "" + message, Toast.LENGTH_SHORT)
                             .show()
                     }
                 })

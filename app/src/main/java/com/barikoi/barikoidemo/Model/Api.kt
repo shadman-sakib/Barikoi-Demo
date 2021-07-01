@@ -44,6 +44,7 @@ object Api {
 
     val url_search_new = url_base + "search/autocomplete/app"
     val url_search_web = url_base + "search/autocomplete/web"
+    val url_search_elastic = "http://elastic.barikoi.com/bkoi/autocomplete/filter"
     val url_search_tnt = url_base + "tnt/search/test"
     val url_geocode_new = url_base + "search/geocode/"
     val url_geocode_new_nonauth = url_base +"search/geocode/web/"
@@ -125,7 +126,8 @@ object Api {
         this.isauth=isauth
     }
     fun getSearchUrl(): String{
-        return if(isauth) url_search_new else url_search_web
+        /*return if(isauth) url_search_new else url_search_web*/
+        return url_search_elastic
     }
     fun getrevgeourl():String {
         return if(isauth) url_revgeo_auth else url_revgeo_noauth

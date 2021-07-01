@@ -151,7 +151,7 @@ public final class JsonUtilsTask {
      */
     public static void handleResponse(VolleyError error, Context context){
         if(error instanceof TimeoutError || error instanceof NoConnectionError || error instanceof NetworkError){
-            Toast.makeText(context,context.getString(R.string.couldnot_connect), Toast.LENGTH_SHORT).show();
+            Toast.makeText(context.getApplicationContext(),context.getString(R.string.couldnot_connect), Toast.LENGTH_SHORT).show();
         }
         else if(error instanceof AuthFailureError){
             Intent i=new Intent(context, MainDemoActivity.class);
@@ -159,11 +159,11 @@ public final class JsonUtilsTask {
             ((Activity)context).finish();
         }
         else if(error instanceof ServerError || error instanceof ParseError){
-            Toast.makeText(context,context.getString(R.string.prob_change_server), Toast.LENGTH_LONG).show();
+            Toast.makeText(context.getApplicationContext(),context.getString(R.string.prob_change_server), Toast.LENGTH_LONG).show();
 
         }
         else{
-            Toast.makeText(context, context.getString(R.string.unknown_error), Toast.LENGTH_LONG).show();
+            Toast.makeText(context.getApplicationContext(), context.getString(R.string.unknown_error), Toast.LENGTH_LONG).show();
         }
 
     }

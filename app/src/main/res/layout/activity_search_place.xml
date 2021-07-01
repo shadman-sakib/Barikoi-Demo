@@ -140,6 +140,7 @@
                 android:id="@+id/locationChecked"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:visibility="gone"
                 android:layout_weight="1"
                 android:layout_marginRight="8dp">
 
@@ -155,6 +156,7 @@
             android:layout_marginLeft="4dp"
             android:drawableRight="@drawable/ic_info"
             android:drawablePadding="4dp"
+            android:visibility="gone"
             android:drawableTint="@color/colorGray"
             android:text="@string/tvhintcheckbox"
             android:textColor="@color/colorGray"
